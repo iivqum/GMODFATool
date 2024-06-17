@@ -1,6 +1,6 @@
 fatool.spline = {}
 
-local catmull_rom_spline = {
+local spline = {
 	-- Catmull-Rom spline parameters used to change its shape
 	alpha = 0.5,
 	tension = 0,
@@ -17,14 +17,14 @@ local catmull_rom_spline = {
 	offset = 0
 }
 
-catmull_rom_spline.__index = catmull_rom_spline
+spline.__index = spline
 
 function fatool.spline.new(alpha, tension)
 	[[
 		Purpose:
 			Create an instance of a spline object
 	]]
-	return setmetatable({alpha = alpha, tension = tension}, catmull_rom_spline)
+	return setmetatable({alpha = alpha, tension = tension}, spline)
 end
 
 local function catmull_rom(alpha, tension, p0, p1, p2, p3)
@@ -48,7 +48,7 @@ local function catmull_rom(alpha, tension, p0, p1, p2, p3)
 	return a, b, c, d
 end
 
-function catmull_rom_spline:compute_coefficients(segment_index)
+function spline:coefficients(segment_index)
 	[[
 		Purpose:
 			Compute coefficients of a single segment
@@ -69,7 +69,45 @@ function catmull_rom_spline:compute_coefficients(segment_index)
 	segment.coefficients = {catmull_rom(self.alpha, self.tension, p0, p1, p2, p3)}
 end
 
-function catmull_rom_spline:segment()
+function spline:sample(segment_index,t)
+	[[
+		Purpose:
+			Sample a segment for t between 0 and 1 using the polynomial fit
+	]]
+	local segment = self.segments[segment_index]
+	if not segment then
+		return
+	end
+	local coef = segment.coefficients
+	return coef[1] * t*t*t + coef[2] * t*t + coef[3] * t + coef[4]
+end
+
+function spline:segment_length(segment_index, iterations)
+	[[
+		Purpose:
+			Compute length of a single segment
+	]]
+	local segment = self.segments[segment_index]
+	if not segment then 
+		return 
+	end
+	-- Use a linear step for t and compute length for each step
+	-- This could be improved using a numerical integration method
+	local step = 1 / iterations
+	local t = 0
+	local old_point = segment.p0.pos
+	local new_point
+	local length = 0
+	for i = 1, steps do
+		t = t + fraction
+		new_point = self:sample(segment_index, t)
+		length = length + old_point:Distance2D(new_point)
+		old_point = new_point
+	end
+	return length
+end
+
+function spline:segment()
 	[[
 		Purpose:
 			Generate segments from the list of points, assumes they are ordered according to ascending X value
@@ -87,7 +125,7 @@ function catmull_rom_spline:segment()
 	table.insert(self.segments, {p0 = previous_point, p1 = control1})
 end
 
-function catmull_rom_spline:add_point(point)
+function spline:add_point(point)
 	[[
 		Purpose:
 			Add a point to the spline and recompute
