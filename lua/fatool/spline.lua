@@ -33,15 +33,15 @@ local function catmull_rom(alpha, tension, p0, p1, p2, p3)
 			Compute Catmull-Rom spline coefficients
 	]]
 	local t0 = 0
-	local t1 = t0+math.pow(distance2d(p0,p1),alpha)
-	local t2 = t1+math.pow(distance2d(p1,p2),alpha)
-	local t3 = t2+math.pow(distance2d(p2,p3),alpha)
+	local t1 = t0 + math.pow(distance2d(p0, p1), alpha)
+	local t2 = t1 + math.pow(distance2d(p1, p2), alpha)
+	local t3 = t2 + math.pow(distance2d(p2, p3), alpha)
 	
-	local m1 = (1-tension)*(t2-t1)*((p1-p0)/(t1-t0)-(p2-p0)/(t2-t0)+(p2-p1)/(t2-t1))
-	local m2 = (1-tension)*(t2-t1) *((p2-p1)/(t2-t1)-(p3-p1)/(t3-t1)+(p3-p2)/(t3-t2))
+	local m1 = (1 - tension) * (t2 - t1) * ((p1 - p0) / (t1 - t0) - (p2 - p0) / (t2 - t0) + (p2 - p1)/(t2 - t1))
+	local m2 = (1 - tension) * (t2 - t1) * ((p2 - p1) / (t2 - t1) - (p3 - p1) / (t3 - t1) + (p3 - p2)/(t3 - t2))
 	
-	local a = 2*(p1-p2)+m1+m2
-	local b = -3*(p1-p2)-m1-m1-m2
+	local a = 2 * (p1 - p2) + m1 + m2
+	local b = -3 * (p1 - p2) - m1 - m1 - m2
 	local c = m1
 	local d = p1
 	
