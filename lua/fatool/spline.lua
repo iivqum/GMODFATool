@@ -48,6 +48,14 @@ local function catmull_rom(alpha, tension, p0, p1, p2, p3)
 	return a, b, c, d
 end
 
+function spline:update()
+	[[
+		Purpose:
+			Calculate everything needed for the spline
+	]]
+	
+end
+
 function spline:coefficients(segment_index)
 	[[
 		Purpose:
@@ -113,6 +121,7 @@ function spline:segment()
 			Generate segments from the list of points, assumes they are ordered according to ascending X value
 	]]
 	self.segments = {}
+	-- There's a faster way of doing this
 	local previous_point
 	for i, point in ipairs(self.points) do
 		if not previous_point then
@@ -123,6 +132,25 @@ function spline:segment()
 	end
 	-- Add final segment which contains last point and control point
 	table.insert(self.segments, {p0 = previous_point, p1 = control1})
+end
+
+function spline:nearest_point(position)
+	[[
+		Purpose:
+			Get the nearest point on the spline from an arbitrary position
+	]]
+end
+
+function spline:remove_point(point_index)
+	[[
+		Purpose:
+			Remove a point from the spline
+	]]
+	if not self.points[point_index] then
+		return
+	end
+	table.remove(self.points,point_index)
+	self.segment()
 end
 
 function spline:add_point(point)
