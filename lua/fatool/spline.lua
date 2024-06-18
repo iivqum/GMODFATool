@@ -4,10 +4,6 @@ local spline = {
 	-- Catmull-Rom spline parameters used to change its shape
 	alpha = 0.5,
 	tension = 0,
-	-- Array of points in the spline. Points are Vector types and must be normalized.
-	points = {},
-	-- Array of pairs of points. A pair of points specifies a segment
-	segments = {},
 	-- Spline control points which specify the start and end of the spline
 	control0 = Vector(0),
 	control1 = Vector(0,1),
@@ -24,7 +20,14 @@ function fatool.spline.new(alpha, tension)
 		Purpose:
 			Create an instance of a spline object
 	--]]
-	local instance = setmetatable({alpha = alpha, tension = tension}, spline)
+	local instance = setmetatable({
+		alpha = alpha, 
+		tension = tension,
+		-- Array of points in the spline. Points are Vector types and must be normalized.
+		points = {},
+		-- Array of pairs of points. A pair of points specifies a segment
+		segments = {}
+	}, spline)
 	instance:update()
 	return instance
 end
@@ -143,14 +146,16 @@ function spline:sample_along(segment_index, iterations, sample_func)
 	-- This could be improved using a numerical integration method
 	local step = 1 / iterations
 	local t = 0
-	local old_point = segment.p0
-	local new_point
+	local old_point = Vector(segment.p0)
+	local new_point = Vector(segment.p0)
+	PrintTable(self)
 	local length = 0
 	for i = 1, iterations do
 		t = t + step
-		new_point = self:sample(segment_index, t)
+		new_point.y = new_point.y 
+		new_point.x = new_point.x + step
 		sample_func(old_point, new_point)
-		old_point = new_point
+		old_point:Set(new_point)
 	end
 end
 

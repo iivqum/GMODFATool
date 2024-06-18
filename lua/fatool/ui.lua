@@ -2,6 +2,15 @@ include("fatool/ui/spline.lua")
 
 fatool.ui = {}
 
+local test = fatool.spline.new()
+test:add_point(Vector(0.5,0.5))
+test:add_point(Vector(0.3,0.5))
+test:update()
+test.alpha = 10
+test.control0 = Vector(1,1,1)
+PrintTable(test)
+local a = 1322
+
 function fatool.ui.open()
 	local flex_ui = {}
 
@@ -19,4 +28,4 @@ function fatool.ui.open()
 	spline:Dock(FILL)
 end
 
-concommand.Add("flexui",fatool.ui.open)
+concommand.Add("flextest",fatool.ui.open)

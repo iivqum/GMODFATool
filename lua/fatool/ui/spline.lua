@@ -23,11 +23,7 @@ function PANEL:Paint(width, height)
 	for i, segment in ipairs(self.spline:get_segments()) do
 		self.spline:sample_along(i, 10, function(old_point, new_point)
 			-- Flip Y axis because screen Y is flipped
-			new_point.y = -new_point.y
-			old_point.y = -old_point.y
-			new_point = new_point * window_dimensions
-			old_point = old_point * window_dimensions
-			surface.DrawLine(old_point.x, old_point.y, new_point.x, new_point.y)
+			
 		end)
 	end
 	
@@ -40,8 +36,8 @@ end
 
 function PANEL:OnMousePressed(mouse_key)
 	if mouse_key == MOUSE_LEFT then
-	
-	
+		self.spline:add_point(Vector(0.5, 0.2))
+		self.spline:update()
 	end
 end
 
