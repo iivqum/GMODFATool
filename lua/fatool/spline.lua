@@ -55,9 +55,9 @@ function spline:update()
 		Purpose:
 			Calculate everything needed for the spline
 	--]]
-	self.segment()
+	self:segment()
 	for i, segment in ipairs(self.segments) do
-		self.coefficients(i)
+		self:coefficients(i)
 	end
 end
 
@@ -143,11 +143,11 @@ function spline:sample_along(segment_index, iterations, sample_func)
 	-- This could be improved using a numerical integration method
 	local step = 1 / iterations
 	local t = 0
-	local old_point = segment.p0.pos
+	local old_point = segment.p0
 	local new_point
 	local length = 0
-	for i = 1, steps do
-		t = t + fraction
+	for i = 1, iterations do
+		t = t + step
 		new_point = self:sample(segment_index, t)
 		sample_func(old_point, new_point)
 		old_point = new_point
@@ -167,7 +167,7 @@ function spline:segment()
 		previous_point = point
 	end
 	-- Add final segment which contains last point and control point
-	table.insert(self.segments, {p0 = previous_point, p1 = control1})
+	table.insert(self.segments, {p0 = previous_point, p1 = self.control1})
 end
 
 function spline:nearest_point(position)
@@ -200,7 +200,7 @@ function spline:add_point(point)
 		function(p0, p1)
 			return p0.x < p1.x
 		end)
-	self.segment()
+	self:segment()
 	return point_index
 end
 
