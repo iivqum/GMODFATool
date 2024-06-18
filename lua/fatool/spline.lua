@@ -24,7 +24,9 @@ function fatool.spline.new(alpha, tension)
 		Purpose:
 			Create an instance of a spline object
 	--]]
-	return setmetatable({alpha = alpha, tension = tension}, spline)
+	local instance = setmetatable({alpha = alpha, tension = tension}, spline)
+	instance:update()
+	return instance
 end
 
 local function catmull_rom(alpha, tension, p0, p1, p2, p3)
@@ -53,7 +55,10 @@ function spline:update()
 		Purpose:
 			Calculate everything needed for the spline
 	--]]
-	
+	self.segment()
+	for i, segment in ipairs(self.segments) do
+		self.coefficients(i)
+	end
 end
 
 function spline:coefficients(segment_index)
@@ -75,6 +80,8 @@ function spline:coefficients(segment_index)
 	local p3 = right_segment and right_segment.p1 or segment.p1
 	
 	segment.coefficients = {catmull_rom(self.alpha, self.tension, p0, p1, p2, p3)}
+	
+	return segment.coefficients
 end
 
 function spline:sample(segment_index,t)
@@ -90,7 +97,7 @@ function spline:sample(segment_index,t)
 	return coef[1] * t*t*t + coef[2] * t*t + coef[3] * t + coef[4]
 end
 
-function spline:sample_linear(segment_index, x, iterations)
+function spline:sample_continous(x, iterations)
 	--[[
 		Purpose:
 			Sample from the entire spline for 0 <= x <= 1, approximating the spline as a continous function f(x)
@@ -155,11 +162,8 @@ function spline:segment()
 	--]]
 	self.segments = {}
 	-- There's a faster way of doing this
-	local previous_point
+	local previous_point = self.control0
 	for i, point in ipairs(self.points) do
-		if not previous_point then
-			previous_point = self.control0
-		end
 		table.insert(self.segments, {p0 = previous_point, p1 = point})
 		previous_point = point
 	end
@@ -172,6 +176,7 @@ function spline:nearest_point(position)
 		Purpose:
 			Get the nearest point on the spline from an arbitrary position
 	--]]
+	
 end
 
 function spline:remove_point(point_index)
@@ -191,10 +196,19 @@ function spline:add_point(point)
 		Purpose:
 			Add a point to the spline and recompute
 	--]]
-	table.insert(self.points, point)
+	local point_index = table.insert(self.points, point)
 	table.sort(self.points, 
 		function(p0, p1)
 			return p0.x < p1.x
 		end)
 	self.segment()
+	return point_index
+end
+
+function spline:get_segments()
+	return self.segments
+end
+
+function spline:get_points()
+	return self.points
 end
