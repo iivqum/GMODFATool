@@ -9,7 +9,7 @@ test:update()
 test.alpha = 10
 test.control0 = Vector(1,1,1)
 PrintTable(test)
-local a = 1322
+local a = 132242
 
 function fatool.ui.open()
 	local flex_ui = {}

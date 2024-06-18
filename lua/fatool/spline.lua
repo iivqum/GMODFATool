@@ -4,9 +4,12 @@ local spline = {
 	-- Catmull-Rom spline parameters used to change its shape
 	alpha = 0.5,
 	tension = 0,
-	-- Spline control points which specify the start and end of the spline
+	-- Offscreen and only for spline continuity
+	anchor0 = Vector(-0.5),
+	anchor1 = Vector(1.5),
+	-- Minimum and maximum extents of the spline
 	control0 = Vector(0),
-	control1 = Vector(0,1),
+	control1 = Vector(1),
 	-- Length of the spline
 	length = 0,
 	-- Spline Y offset
@@ -23,7 +26,7 @@ function fatool.spline.new(alpha, tension)
 	local instance = setmetatable({
 		alpha = alpha, 
 		tension = tension,
-		-- Array of points in the spline. Points are Vector types and must be normalized.
+		-- Array of points in the spline. Points are Vector types and must be normalized and 0 < x < 1.
 		points = {},
 		-- Array of pairs of points. A pair of points specifies a segment
 		segments = {}
@@ -76,11 +79,11 @@ function spline:coefficients(segment_index)
 	local left_segment = self.segments[segment_index - 1]
 	local right_segment = self.segments[segment_index + 1]
 	-- If left segment doesn't exist then segment.p0 is the left control point
-	local p0 = left_segment and left_segment.p0 or segment.p0
+	local p0 = left_segment and left_segment.p0 or self.anchor0
 	local p1 = segment.p0
 	local p2 = segment.p1
 	-- If right segment doesn't exist then segment.p1 is the right control point
-	local p3 = right_segment and right_segment.p1 or segment.p1
+	local p3 = right_segment and right_segment.p1 or self.anchor1
 	
 	segment.coefficients = {catmull_rom(self.alpha, self.tension, p0, p1, p2, p3)}
 	
@@ -148,7 +151,6 @@ function spline:sample_along(segment_index, iterations, sample_func)
 	local t = 0
 	local old_point = Vector(segment.p0)
 	local new_point = Vector(segment.p0)
-	PrintTable(self)
 	local length = 0
 	for i = 1, iterations do
 		t = t + step
