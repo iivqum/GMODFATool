@@ -2,15 +2,6 @@ include("fatool/ui/spline.lua")
 
 fatool.ui = {}
 
-local test = fatool.spline.new()
-test:add_point(Vector(0.5,0.5))
-test:add_point(Vector(0.3,0.5))
-test:update()
-test.alpha = 10
-test.control0 = Vector(1,1,1)
-PrintTable(test)
-local a = 132242
-
 function fatool.ui.open()
 	local flex_ui = {}
 
@@ -29,3 +20,67 @@ function fatool.ui.open()
 end
 
 concommand.Add("flextest",fatool.ui.open)
+
+local PANEL = {}
+
+PANEL.Init = function( panel )
+	panel:SetText( "" )
+	panel:SetSize( 24, 24 )
+	panel.Dragging = false
+end
+PANEL.OnCursorMoved = function( panel, x, y )
+	if ( panel.Dragging ) then
+		local x, y = input.GetCursorPos()
+		panel:SetPos( panel.StartPos.x + x - panel.CursorPos.x , panel.StartPos.y + y - panel.CursorPos.y )
+	end
+end
+PANEL.OnMousePressed = function( panel, x, y )
+	panel.Dragging = true
+	local x, y = input.GetCursorPos()
+	panel.CursorPos = { x = x, y = y }
+	local x, y = panel:GetPos()
+	panel.StartPos = { x = x, y = y }
+end
+
+PANEL.OnMouseReleased = function( panel, x, y ) panel.Dragging = false end
+PANEL.OnCursorExited = PANEL.OnCursorMoved 
+
+local MovableButton = vgui.RegisterTable( PANEL, "DButton" )
+
+
+local f = vgui.Create( "DFrame" )
+f:SetSize( 500, 500 )
+f:Center()
+f:MakePopup()
+
+local oldPaint = f.Paint
+f.Paint = function( pnl, w, h )
+	oldPaint( pnl, w, h )
+
+	local points = {}
+	for k, pnl in ipairs( pnl:GetChildren() ) do
+		local x, y = pnl:GetPos()
+		if ( pnl.Dragging != nil ) then
+			table.insert( points, Vector( x, y, 0 ) )
+			pnl:SetText( #points )
+		end
+	end
+
+	surface.SetDrawColor( 255, 0, 0, 255 )
+	local lastPos = math.BSplinePoint( 0, points, 1 )
+	for i=0, 32 do
+		local pos = math.BSplinePoint( i / 32, points, 1 )
+		surface.DrawLine( lastPos.x, lastPos.y, pos.x, pos.y )
+		lastPos = pos
+	end
+end
+
+vgui.CreateFromTable( MovableButton, f ):SetPos( 100, 100 )
+vgui.CreateFromTable( MovableButton, f ):SetPos( 200, 200 )
+vgui.CreateFromTable( MovableButton, f ):SetPos( 300, 100 )
+vgui.CreateFromTable( MovableButton, f ):SetPos( 400, 200 )
+
+local addBtn = vgui.Create( "DButton", f )
+addBtn:Dock( TOP )
+addBtn:SetText( "Add point" )
+addBtn.DoClick = function() vgui.CreateFromTable( MovableButton, f ):SetPos( VectorRand( 20, 450 ):Unpack() ) end

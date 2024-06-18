@@ -3,7 +3,7 @@ fatool.spline = {}
 local spline = {
 	-- Catmull-Rom spline parameters used to change its shape
 	alpha = 0.5,
-	tension = 0,
+	tension = 0.2,
 	-- Offscreen and only for spline continuity
 	anchor0 = Vector(-0.5),
 	anchor1 = Vector(1.5),
@@ -150,12 +150,10 @@ function spline:sample_along(segment_index, iterations, sample_func)
 	local step = 1 / iterations
 	local t = 0
 	local old_point = Vector(segment.p0)
-	local new_point = Vector(segment.p0)
-	local length = 0
+	local new_point = Vector()
 	for i = 1, iterations do
 		t = t + step
-		new_point.y = new_point.y 
-		new_point.x = new_point.x + step
+		new_point:Set(self:sample(segment_index, t))
 		sample_func(old_point, new_point)
 		old_point:Set(new_point)
 	end
