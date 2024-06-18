@@ -4,7 +4,7 @@ local spline = {
 	-- Catmull-Rom spline parameters used to change its shape
 	alpha = 0.5,
 	tension = 0,
-	-- Array of points in the spline. Points are Vector types.
+	-- Array of points in the spline. Points are Vector types and must be normalized.
 	points = {},
 	-- Array of pairs of points. A pair of points specifies a segment
 	segments = {},
@@ -37,8 +37,8 @@ local function catmull_rom(alpha, tension, p0, p1, p2, p3)
 	local t2 = t1 + math.pow(p1:Distance2D(p2), alpha)
 	local t3 = t2 + math.pow(p2:Distance2D(p3), alpha)
 	
-	local m1 = (1 - tension) * (t2 - t1) * ((p1 - p0) / (t1 - t0) - (p2 - p0) / (t2 - t0) + (p2 - p1)/(t2 - t1))
-	local m2 = (1 - tension) * (t2 - t1) * ((p2 - p1) / (t2 - t1) - (p3 - p1) / (t3 - t1) + (p3 - p2)/(t3 - t2))
+	local m1 = (1 - tension) * (t2 - t1) * ((p1 - p0) / (t1 - t0) - (p2 - p0) / (t2 - t0) + (p2 - p1) / (t2 - t1))
+	local m2 = (1 - tension) * (t2 - t1) * ((p2 - p1) / (t2 - t1) - (p3 - p1) / (t3 - t1) + (p3 - p2) / (t3 - t2))
 	
 	local a = 2 * (p1 - p2) + m1 + m2
 	local b = -3 * (p1 - p2) - m1 - m1 - m2
@@ -88,6 +88,39 @@ function spline:sample(segment_index,t)
 	end
 	local coef = segment.coefficients
 	return coef[1] * t*t*t + coef[2] * t*t + coef[3] * t + coef[4]
+end
+
+function spline:sample_linear(segment_index, x, iterations)
+	[[
+		Purpose:
+			Sample from the entire spline for 0 <= x <= 1, approximating the spline as a continous function f(x)
+	]]
+	for i, segment in ipairs(self.segments) do
+		local p0 = segment.p0
+		local p1 = segment.p1
+		-- True if the point of interest is contained by the segment
+		if x <= p1.x and d >= p0.x then
+			-- Bounds of the sample space
+			local sample_start = 0
+			local sample_end = 1
+			local pos
+			-- Binary space partition method to approximate a point on the spline
+			for i = 1, iterations do
+				local delta = (sample_end - sample_start) * 0.5
+				pos = self:sample(k, sample_start + delta)
+				if d < pos.x then
+					sample_end = sample_end - delta
+				elseif d > pos.x then
+					sample_start = sample_start + delta
+				elseif d == pos.x then
+					break
+				end
+			end
+			return pos.y
+		end
+	end
+	-- X is outside the bounds of the spline
+	return 0
 end
 
 function spline:segment_length(segment_index, iterations)
