@@ -130,10 +130,10 @@ function spline:sample_continous(x, iterations)
 	return 0
 end
 
-function spline:segment_length(segment_index, iterations)
+function spline:sample_along(segment_index, iterations, sample_func)
 	--[[
 		Purpose:
-			Compute length of a single segment
+			Sample at fixed intervals along a spline segment
 	--]]
 	local segment = self.segments[segment_index]
 	if not segment then 
@@ -149,10 +149,9 @@ function spline:segment_length(segment_index, iterations)
 	for i = 1, steps do
 		t = t + fraction
 		new_point = self:sample(segment_index, t)
-		length = length + old_point:Distance2D(new_point)
+		sample_func(old_point, new_point)
 		old_point = new_point
 	end
-	return length
 end
 
 function spline:segment()
