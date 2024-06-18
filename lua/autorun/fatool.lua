@@ -7,3 +7,4 @@ if SERVER then
 	return
 end
 
+include("fatool/spline.lua")

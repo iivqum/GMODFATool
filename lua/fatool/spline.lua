@@ -20,18 +20,18 @@ local spline = {
 spline.__index = spline
 
 function fatool.spline.new(alpha, tension)
-	[[
+	--[[
 		Purpose:
 			Create an instance of a spline object
-	]]
+	--]]
 	return setmetatable({alpha = alpha, tension = tension}, spline)
 end
 
 local function catmull_rom(alpha, tension, p0, p1, p2, p3)
-	[[
+	--[[
 		Purpose:
 			Compute Catmull-Rom spline coefficients
-	]]
+	--]]
 	local t0 = 0
 	local t1 = t0 + math.pow(p0:Distance2D(p1), alpha)
 	local t2 = t1 + math.pow(p1:Distance2D(p2), alpha)
@@ -49,18 +49,18 @@ local function catmull_rom(alpha, tension, p0, p1, p2, p3)
 end
 
 function spline:update()
-	[[
+	--[[
 		Purpose:
 			Calculate everything needed for the spline
-	]]
+	--]]
 	
 end
 
 function spline:coefficients(segment_index)
-	[[
+	--[[
 		Purpose:
 			Compute coefficients of a single segment
-	]]
+	--]]
 	local segment = self.segments[segment_index]
 	if not segment then
 		return
@@ -78,10 +78,10 @@ function spline:coefficients(segment_index)
 end
 
 function spline:sample(segment_index,t)
-	[[
+	--[[
 		Purpose:
 			Sample a segment for t between 0 and 1 using the polynomial fit
-	]]
+	--]]
 	local segment = self.segments[segment_index]
 	if not segment then
 		return
@@ -91,10 +91,10 @@ function spline:sample(segment_index,t)
 end
 
 function spline:sample_linear(segment_index, x, iterations)
-	[[
+	--[[
 		Purpose:
 			Sample from the entire spline for 0 <= x <= 1, approximating the spline as a continous function f(x)
-	]]
+	--]]
 	for i, segment in ipairs(self.segments) do
 		local p0 = segment.p0
 		local p1 = segment.p1
@@ -124,10 +124,10 @@ function spline:sample_linear(segment_index, x, iterations)
 end
 
 function spline:segment_length(segment_index, iterations)
-	[[
+	--[[
 		Purpose:
 			Compute length of a single segment
-	]]
+	--]]
 	local segment = self.segments[segment_index]
 	if not segment then 
 		return 
@@ -149,10 +149,10 @@ function spline:segment_length(segment_index, iterations)
 end
 
 function spline:segment()
-	[[
+	--[[
 		Purpose:
 			Generate segments from the list of points, assumes they are ordered according to ascending X value
-	]]
+	--]]
 	self.segments = {}
 	-- There's a faster way of doing this
 	local previous_point
@@ -168,17 +168,17 @@ function spline:segment()
 end
 
 function spline:nearest_point(position)
-	[[
+	--[[
 		Purpose:
 			Get the nearest point on the spline from an arbitrary position
-	]]
+	--]]
 end
 
 function spline:remove_point(point_index)
-	[[
+	--[[
 		Purpose:
 			Remove a point from the spline
-	]]
+	--]]
 	if not self.points[point_index] then
 		return
 	end
@@ -187,10 +187,10 @@ function spline:remove_point(point_index)
 end
 
 function spline:add_point(point)
-	[[
+	--[[
 		Purpose:
 			Add a point to the spline and recompute
-	]]
+	--]]
 	table.insert(self.points, point)
 	table.sort(self.points, 
 		function(p0, p1)
