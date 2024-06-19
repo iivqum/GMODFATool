@@ -5,7 +5,7 @@ local default_foreground_color = Color(0,0,255)
 local PANEL = {}
 
 function PANEL:Init()
-	self.spline = fatool.spline.new()
+	self.spline = fatool.spline()
 end
 
 function PANEL:get_spline()

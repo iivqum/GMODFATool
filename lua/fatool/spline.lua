@@ -17,12 +17,9 @@ local spline = {
 }
 
 spline.__index = spline
+setmetatable(fatool.spline, fatool.spline)
 
-function fatool.spline.new(alpha, tension)
-	--[[
-		Purpose:
-			Create an instance of a spline object
-	--]]
+fatool.spline.__call = function(self, alpha, tension)
 	local instance = setmetatable({
 		alpha = alpha, 
 		tension = tension,
