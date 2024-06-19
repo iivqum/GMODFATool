@@ -115,6 +115,7 @@ function spline:sample_continous(x, iterations)
 			local sample_end = 1
 			local pos
 			-- Binary space partition method to approximate a point on the spline
+			-- Sample resolution is 2^iterations, percent error is 100/(2^iterations)
 			for i = 1, iterations do
 				local delta = (sample_end - sample_start) * 0.5
 				pos = self:sample(segment_index, sample_start + delta)
