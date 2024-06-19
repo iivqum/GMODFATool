@@ -42,6 +42,11 @@ function PANEL:Paint(width, height)
 		local y = (1 - point.y) * height
 		surface.DrawRect(x, y, 4, 4)
 	end
+	
+	local normal_mouse_x, normal_mouse_y = self:normalized_mouse_pos()
+	local y = self.spline:sample_continous(normal_mouse_x, 16)
+	
+	surface.DrawRect(normal_mouse_x * width, (1 - y) * height, 4, 4)
 end
 
 function PANEL:OnMousePressed(mouse_key)

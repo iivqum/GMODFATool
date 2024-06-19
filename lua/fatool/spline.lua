@@ -105,11 +105,11 @@ function spline:sample_continous(x, iterations)
 		Purpose:
 			Sample from the entire spline for 0 <= x <= 1, approximating the spline as a continous function f(x)
 	--]]
-	for i, segment in ipairs(self.segments) do
+	for segment_index, segment in ipairs(self.segments) do
 		local p0 = segment.p0
 		local p1 = segment.p1
 		-- True if the point of interest is contained by the segment
-		if x <= p1.x and d >= p0.x then
+		if x <= p1.x and x >= p0.x then
 			-- Bounds of the sample space
 			local sample_start = 0
 			local sample_end = 1
@@ -117,12 +117,12 @@ function spline:sample_continous(x, iterations)
 			-- Binary space partition method to approximate a point on the spline
 			for i = 1, iterations do
 				local delta = (sample_end - sample_start) * 0.5
-				pos = self:sample(k, sample_start + delta)
-				if d < pos.x then
+				pos = self:sample(segment_index, sample_start + delta)
+				if x < pos.x then
 					sample_end = sample_end - delta
-				elseif d > pos.x then
+				elseif x > pos.x then
 					sample_start = sample_start + delta
-				elseif d == pos.x then
+				elseif x == pos.x then
 					break
 				end
 			end
