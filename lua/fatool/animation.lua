@@ -28,6 +28,30 @@ function animation:get_fraction_complete()
 	return self.progress / self.length
 end
 
+function animation:set_progress(new_progress)
+	self.progress = math.Clamp(new_progress, 0, self.length)
+end
+
+function animation:update_time(time_delta)
+	self.progress = self.progress + math.abs(time_delta)
+	if self.progress < self.length then
+		return
+	end
+	if self.looped then
+		self.progress = 0
+		return
+	end
+	self.progress = self.length
+	self.playing = false
+end
+
+function animation:set_actor(actor_entity)
+	if not IsValid(actor_entity) then
+		return
+	end
+	self.actor = actor_entity
+end
+
 function animation:apply_frame()
 	--[[
 		Purpose:
