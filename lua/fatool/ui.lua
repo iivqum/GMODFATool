@@ -5,7 +5,7 @@ fatool.ui = {}
 function fatool.ui.open()
 	local body = vgui.Create("DFrame")
 	body:SetSize(ScrW() * 0.7, ScrH() * 0.7)
-	body:SetSizable(false)
+	body:SetSizable(true)
 	body:SetTitle("test") 
 	body:SetVisible(true) 
 	body:SetDraggable(true) 
