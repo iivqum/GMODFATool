@@ -1,7 +1,6 @@
 local default_background_color = Color(255,255,255)
 local default_foreground_color = Color(0,0,255)
 
-
 local PANEL = {}
 
 function PANEL:Init()

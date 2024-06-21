@@ -7,6 +7,10 @@ AddCSLuaFile("fatool/sequence.lua")
 
 AddCSLuaFile("fatool/ui.lua")
 AddCSLuaFile("fatool/ui/spline.lua")
+AddCSLuaFile("fatool/ui/timeline.lua")
+AddCSLuaFile("fatool/ui/preview.lua")
+AddCSLuaFile("fatool/ui/editor.lua")
+AddCSLuaFile("fatool/ui/menubar.lua")
 
 if SERVER then
 	return

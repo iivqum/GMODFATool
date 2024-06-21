@@ -1,20 +1,59 @@
 include("fatool/ui/spline.lua")
+include("fatool/ui/timeline.lua")
+include("fatool/ui/editor.lua")
+include("fatool/ui/preview.lua")
+include("fatool/ui/menubar.lua")
 
 fatool.ui = {}
 
-function fatool.ui.open()
-	local body = vgui.Create("DFrame")
-	body:SetSize(ScrW() * 0.7, ScrH() * 0.7)
-	body:SetSizable(true)
-	body:SetTitle("test") 
-	body:SetVisible(true) 
-	body:SetDraggable(true) 
-	body:ShowCloseButton(true) 
-	body:MakePopup()
-	body:Center()
+local PANEL = {}
+
+function PANEL:Init()
+	self:SetSize(ScrW() * 0.7, ScrH() * 0.7)
+	self:SetSizable(false)
+	self:SetTitle("FATool") 
+	self:SetVisible(true) 
+	self:SetDraggable(true) 
+	self:ShowCloseButton(true) 
+	self:MakePopup()
+	self:Center()
 	
-	local spline = vgui.Create("fatool_spline",body)
-	spline:Dock(FILL)
+	self.menubar = self:Add("fatool_menubar")
+	self.menubar:Dock(TOP)
+	
+	self.timeline = self:Add("DFrame")
+	self.timeline:SetTall(self:GetTall() * 0.35)
+	self.timeline:ShowCloseButton(false)
+	self.timeline:SetDraggable(false)
+	self.timeline:SetTitle("Timeline")
+	self.timeline:Dock(BOTTOM)
+	
+	self.timeline.panel = self.timeline:Add("fatool_timeline")
+	
+	self.preview = self:Add("DFrame")
+	self.preview:ShowCloseButton(false)
+	self.preview:SetDraggable(false)
+	self.preview:SetTitle("Animation preview")
+	self.preview:SetWide(self:GetWide() * 0.3)
+	self.preview:Dock(LEFT)
+	
+	self.preview.panel = self.preview:Add("fatool_preview")
+	
+	self.editor = self:Add("DFrame")
+	self.editor:ShowCloseButton(false)
+	self.editor:SetDraggable(false)
+	self.editor:SetTitle("Editor")	
+	self.editor:Dock(FILL)
+	
+	self.editor.panel = self.editor:Add("fatool_editor")
+end
+
+
+vgui.Register("fatool_ui", PANEL, "DFrame")
+
+
+function fatool.ui.open()
+	vgui.Create("fatool_ui")
 end
 
 concommand.Add("fatool",fatool.ui.open)
