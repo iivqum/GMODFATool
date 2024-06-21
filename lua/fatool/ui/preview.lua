@@ -4,7 +4,7 @@ local PANEL = {}
 function PANEL:Init()
 	self:Dock(FILL)
 	self:SetModel("models/Humans/Group02/male_02.mdl")
-	self:SetAnimated(false)	
+	self:SetAnimated(true)	
 end
 
 function PANEL:LayoutEntity()

@@ -6,6 +6,22 @@ include("fatool/ui/menubar.lua")
 
 fatool.ui = {}
 
+function fatool.ui.draw_vertical_dashed_line(gap, x, length, color_r, color_g, color_b)
+	surface.SetDrawColor(color_r, color_g, color_b)
+	for i = 0, math.floor(length / gap) do
+		local offset = i * gap * 2
+		surface.DrawLine(x, offset, x, offset + gap)
+	end
+end
+
+function fatool.ui.draw_horizontal_dashed_line(gap, y, length, color_r, color_g, color_b)
+	surface.SetDrawColor(color_r, color_g, color_b)
+	for i = 0, math.floor(length / gap) do
+		local offset = i * gap * 2
+		surface.DrawLine(offset, y, offset + gap, y)
+	end
+end
+
 local PANEL = {}
 
 function PANEL:Init()

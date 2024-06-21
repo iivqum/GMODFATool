@@ -25,6 +25,9 @@ function PANEL:Init()
 	function self.contents:Paint(width, height)
 		surface.SetDrawColor(150, 150, 150)
 		surface.DrawLine(128, -1, 128, height + 1)
+		
+		fatool.ui.draw_vertical_dashed_line(4, 10, height, 255, 255, 255)
+		fatool.ui.draw_horizontal_dashed_line(2, 10, width, 255, 255, 255)
 	end
 	
 	for i = 0, 1 do
@@ -36,10 +39,6 @@ function PANEL:Init()
 			surface.DrawLine(128, height - 1, width - 1, height - 1)
 		end	
 	end
-end
-
-function PANEL:draw_dashed_line(start_x, start_y, stop_x, stop_y)
-	
 end
 
 function PANEL:Paint(width, height)
