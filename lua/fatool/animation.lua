@@ -3,15 +3,12 @@ fatool.animation = {}
 local animation_samples = 16
 
 local animation = {
-	name = "default",
-	-- Length of the animation in seconds
-	length = 1,
-	-- Progress of the animation in seconds
-	progress = 0,
-	playing = false,
-	looped = false,
-	-- Entity that is playing the animation
-	actor = 0
+	-- Start of the animation in the sequence
+	start_time = 0
+	-- End of the animation in the sequence
+	stop_time = 0
+	-- A reference to the sequence this animation is attached to
+	sequence = nil
 }
 
 animation.__index = animation
@@ -19,51 +16,35 @@ setmetatable(fatool.animation, fatool.animation)
 
 fatool.animation.__call = function(self)
 	return setmetatable({
-		-- A list of flexes to be controlled by the animation, this is a table of splines where the key is the flex to be controlled
-		flexes = {}
+		motions = {}
 	}, animation)
 end
 
-function animation:get_fraction_complete()
-	return self.progress / self.length
+function animation:attach_sequence(sequence)
+	self.sequence = sequence
 end
 
-function animation:set_progress(new_progress)
-	self.progress = math.Clamp(new_progress, 0, self.length)
+function animation:get_start()
+	return self.start_time
 end
 
-function animation:update_time(time_delta)
-	self.progress = self.progress + math.abs(time_delta)
-	if self.progress < self.length then
-		return
-	end
-	if self.looped then
-		self.progress = 0
-		return
-	end
-	self.progress = self.length
-	self.playing = false
+function animation:get_stop()
+	return self.stop_time
 end
 
-function animation:set_actor(actor_entity)
-	if not IsValid(actor_entity) then
-		return
-	end
-	self.actor = actor_entity
+function animation:set_start(start_time)
+	self.start_time = start_time
 end
 
-function animation:apply_frame()
+function animation:set_stop(stop_time)
+	self.stop_time = stop_time
+end
+
+function animation:add_motion(identifier)
 	--[[
 		Purpose:
-			Apply an animation frame to the actor entity
+			Add the flex data to the animation. This is the data that will be sampled during the animation
 	--]]
-	if not IsValid(self.actor) then
-		return
-	end
-	for flex_name, spline in pairs(self.flexes) do
-		local flex_id = self.actor:GetFlexIDByName(flex_name)
-		local flex_weight = spline:sample_continous(self:get_fraction_complete(), animation_samples)
-		
-		self.actor:SetFlexWeight(flex_id, flex_weight)
-	end
+	assert(isstring(identifier))
+	self.motions[identifier] = fatool.spline()
 end
