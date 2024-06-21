@@ -4,9 +4,9 @@ local animation_samples = 16
 
 local animation = {
 	-- Start of the animation in the sequence
-	start_time = 0
+	start_time = 0,
 	-- End of the animation in the sequence
-	stop_time = 0
+	stop_time = 0,
 	-- A reference to the sequence this animation is attached to
 	sequence = nil
 }
@@ -22,6 +22,10 @@ end
 
 function animation:attach_sequence(sequence)
 	self.sequence = sequence
+end
+
+function animation:apply_motion()
+
 end
 
 function animation:get_start()
@@ -46,5 +50,7 @@ function animation:add_motion(identifier)
 			Add the flex data to the animation. This is the data that will be sampled during the animation
 	--]]
 	assert(isstring(identifier))
-	self.motions[identifier] = fatool.spline()
+	local spline = fatool.spline()
+	self.motions[identifier] = spline
+	return spline
 end
