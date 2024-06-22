@@ -4,8 +4,17 @@ local timeline_left_margin = 32
 local timeline_display_seconds = 10
 -- Maximum time step between timeline divisons
 local timeline_step_seconds = 0.5
-
 local timeline_top_bar_height = 16
+
+local function closest_multiples(n, factor)
+	--[[
+		Purpose:
+			Find closest multiples of a number that contains n
+	--]]
+	local lowest_multiple = math.floor(n / factor)
+	local highest_multiple = lowest_multiple + 1
+	return lowest_multiple * factor, highest_multiple * factor
+end
 
 local PANEL = {}
 
@@ -28,14 +37,15 @@ function PANEL:Init()
 	end
 	
 	
-	self.contents = self:Add("DScrollPanel")
-	self.contents:DockMargin(timeline_left_margin, 0, 0, 0)
-	self.contents:Dock(FILL)
-	self.contents:SetPadding(100)
+	self.top_scroll = self:Add("DScrollPanel")
+	self.top_scroll:DockMargin(timeline_left_margin, 0, 0, 0)
+	self.top_scroll:Dock(FILL)
+	self.top_scroll:SetPadding(100)
 	
-	function self.contents:Paint(width, height)
+	function self.top_scroll:Paint(width, height)
 		surface.SetDrawColor(150, 150, 150)
-		--surface.DrawLine(0, 0, 0, height)		
+
+		surface.DrawLine(0, 0, 0, height)		
 		--fatool.ui.draw_vertical_dashed_line(4, 10, height, 255, 255, 255)
 		--fatool.ui.draw_horizontal_dashed_line(2, 10, width, 255, 255, 255)
 	end
@@ -45,21 +55,37 @@ function PANEL:Init()
 	self.bottom_scroll:SetUp(1, 10)
 end
 
+function PANEL:draw_markers()
+	-- How many markers are on the screen
+	local marker_amount = math.floor(timeline_display_seconds / timeline_step_seconds)
+	-- Distance between markers on the timeline
+	local marker_step = self.top_scroll:GetWide() / marker_amount
+	-- The time that corresponds to the leftmost border of the timeline
+	local marker_start_time = self.bottom_scroll:GetOffset() * -1
+	-- Closest marker boundaries
+	local marker_lower, marker_upper = closest_multiples(marker_start_time, timeline_step_seconds)
+	-- Where the markers will start from the leftmost border
+	local marker_start_position = (marker_start_time - marker_lower) / timeline_step_seconds * marker_step * -1
+	
+	for i = 0, marker_amount do
+		local marker_number = math.Truncate(timeline_step_seconds * i, 2)
+		marker_number = tostring(marker_number)
+		
+		local marker_x = math.floor(marker_start_position + timeline_left_margin + marker_step * i) 
+		
+		if marker_x >= timeline_left_margin then
+			local marker_y = self.top_scroll:GetY() - draw.GetFontHeight("DefaultSmall")
+			
+			draw.DrawText(marker_number, "DefaultSmall", marker_x, marker_y, nil, TEXT_ALIGN_CENTER)
+			fatool.ui.draw_vertical_dashed_line(3, marker_x, self.top_scroll:GetY(), self.top_scroll:GetTall(), 150, 150, 150)
+		end
+	end	
+end
+
 function PANEL:Paint(width, height)
 	surface.SetDrawColor(80, 80, 80)
 	self:DrawFilledRect()
-	
-	-- Draw timeline markers
-	local markers = math.floor(timeline_display_seconds / timeline_step_seconds)
-	local step = self.contents:GetWide() / markers
-	for i = 0, markers do
-		local marker_number = tostring(timeline_step_seconds * i)
-		local marker_x = math.floor(timeline_left_margin + step * i)
-		local marker_y = self.contents:GetY() - draw.GetFontHeight("DefaultSmall")
-		
-		draw.DrawText(marker_number, "DefaultSmall", marker_x, marker_y, nil, TEXT_ALIGN_CENTER)
-		fatool.ui.draw_vertical_dashed_line(3, marker_x, self.contents:GetY(), self.contents:GetTall(), 255, 255, 255)
-	end	
+	self:draw_markers()
 	
 end
 
