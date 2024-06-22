@@ -42,6 +42,8 @@ function PANEL:Init()
 	self.top_scroll:Dock(FILL)
 	self.top_scroll:SetPadding(100)
 	
+	self.top_scroll:Add("DPanel")
+	
 	function self.top_scroll:Paint(width, height)
 		surface.SetDrawColor(150, 150, 150)
 
@@ -68,7 +70,7 @@ function PANEL:draw_markers()
 	local marker_start_position = (marker_start_time - marker_lower) / timeline_step_seconds * marker_step * -1
 	
 	for i = 0, marker_amount do
-		local marker_number = math.Truncate(timeline_step_seconds * i, 2)
+		local marker_number = math.Truncate(marker_lower + timeline_step_seconds * i, 2)
 		marker_number = tostring(marker_number)
 		
 		local marker_x = math.floor(marker_start_position + timeline_left_margin + marker_step * i) 
