@@ -1,3 +1,4 @@
+include("fatool/ui/timeline_channel.lua")
 
 local function closest_multiples(n, factor)
 	--[[
@@ -15,7 +16,7 @@ function PANEL:Init()
 	-- How much the timeline is shifted to the right
 	self.timeline_left_margin = 32
 	-- Normal amount of time that can be displayed
-	self.timeline_display_seconds = 10
+	self.timeline_span = 10
 	-- Maximum time step between timeline divisons
 	self.timeline_step_seconds = 0.5
 	self.timeline_top_bar_height = 16	
@@ -39,7 +40,6 @@ function PANEL:Init()
 	self.top_scroll = self:Add("DScrollPanel")
 	self.top_scroll:DockMargin(self.timeline_left_margin, 0, 0, 0)
 	self.top_scroll:Dock(FILL)
-	self.top_scroll:GetCanvas():DockPadding(0, 16, 0, 0)
 	
 	function self.top_scroll:Paint(width, height)
 		surface.SetDrawColor(150, 150, 150)
@@ -51,20 +51,23 @@ function PANEL:Init()
 	self.bottom_scroll:SetUp(1, 10)
 end
 
-function PANEL:get_startstop()
+function PANEL:get_time_boundaries()
 	--[[
 		Purpose:
-			
+			Get the time corresponding to the left and right borders
 	--]]
+	local start_time = self.bottom_scroll:GetOffset() * -1
+	local stop_time = start_time + self.timeline_span
+	return start_time, stop_time
 end
 
 function PANEL:draw_markers()
 	-- How many markers are on the screen
-	local marker_amount = math.floor(self.timeline_display_seconds / self.timeline_step_seconds)
+	local marker_amount = math.floor(self.timeline_span / self.timeline_step_seconds)
 	-- Distance between markers on the timeline
 	local marker_step = self.top_scroll:GetCanvas():GetWide() / marker_amount
 	-- The time that corresponds to the leftmost border of the timeline
-	local marker_start_time = self.bottom_scroll:GetOffset() * -1
+	local marker_start_time = self:get_time_boundaries()
 	-- Closest marker boundaries
 	local marker_lower, marker_upper = closest_multiples(marker_start_time, self.timeline_step_seconds)
 	-- Where the markers will start from the leftmost border
@@ -86,7 +89,7 @@ function PANEL:Paint(width, height)
 	surface.SetDrawColor(80, 80, 80)
 	self:DrawFilledRect()
 	self:draw_markers()
-	
+	--self:draw_test()
 end
 
 function PANEL:OnMousePressed(mouse_key)
