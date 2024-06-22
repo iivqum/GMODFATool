@@ -6,19 +6,29 @@ include("fatool/ui/menubar.lua")
 
 fatool.ui = {}
 
-function fatool.ui.draw_vertical_dashed_line(gap, x, length, color_r, color_g, color_b)
+function fatool.ui.draw_vertical_dashed_line(gap, x, start_y, length, color_r, color_g, color_b)
+	local max_y = start_y + length
 	surface.SetDrawColor(color_r, color_g, color_b)
-	for i = 0, math.floor(length / gap) do
-		local offset = i * gap * 2
-		surface.DrawLine(x, offset, x, offset + gap)
+	for i = 0, math.floor(length / gap * 0.5) do
+		local y_start = start_y + i * gap * 2
+		if y_start >= max_y then
+			return
+		end
+		local y_end = math.min(y_start + gap, max_y)
+		surface.DrawLine(x, y_start, x, y_end)
 	end
 end
 
-function fatool.ui.draw_horizontal_dashed_line(gap, y, length, color_r, color_g, color_b)
+function fatool.ui.draw_horizontal_dashed_line(gap, y, start_x, length, color_r, color_g, color_b)
+	local max_x = start_x + length
 	surface.SetDrawColor(color_r, color_g, color_b)
-	for i = 0, math.floor(length / gap) do
-		local offset = i * gap * 2
-		surface.DrawLine(offset, y, offset + gap, y)
+	for i = 0, math.floor(length / gap * 0.5) do
+		local x_start = start_x + i * gap * 2
+		if x_start >= max_x then
+			return
+		end
+		local x_end = math.min(x_start + gap, max_x)
+		surface.DrawLine(x_start, y, x_end, y)
 	end
 end
 
