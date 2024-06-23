@@ -44,11 +44,41 @@ function PANEL:Init()
 	function self.top_scroll:Paint(width, height)
 		surface.SetDrawColor(150, 150, 150)
 		surface.DrawLine(0, 0, 0, height)		
+	end	
+	
+	self.timeline_canvas = self.top_scroll:Add("DPanel")
+	self.timeline_canvas:SetTall(1000)
+	self.timeline_canvas:Dock(FILL)
+	
+	function self.timeline_canvas:Paint(width, height)
+	
 	end
 	
 	self.bottom_scroll = self:Add("DHScrollBar")
 	self.bottom_scroll:Dock(BOTTOM)
 	self.bottom_scroll:SetUp(1, 10)
+end
+
+function PANEL:get_mouse_time()
+	--[[
+		Purpose:
+			Get the time at the user's mouse position
+	--]]
+	local left_boundary, right_boundary = self:get_time_boundaries()
+	local mouse_x, mouse_y = self.top_scroll:GetCanvas():ScreenToLocal(gui.MouseX(), gui.MouseY())
+	local timeline_Width = self.top_scroll:GetCanvas():GetWide()
+	mouse_x = math.Clamp(mouse_x, 0, timeline_Width)
+	return (mouse_x / timeline_Width) * self.timeline_span + left_boundary
+end
+
+function PANEL:Think()
+	if not self.sequence then
+		return
+	end
+	-- Make sure the timeline is up to date
+	for animation_index, animation in pairs(self.sequence:get_animations()) do
+		
+	end
 end
 
 function PANEL:get_time_boundaries()

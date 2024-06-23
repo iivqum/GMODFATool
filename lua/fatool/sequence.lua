@@ -21,6 +21,10 @@ fatool.sequence.__call = function(self)
 	}, sequence)
 end
 
+function sequence:get_animations()
+	return self.animations
+end
+
 function sequence:update(time_delta)
 	--[[
 		Purpose:
