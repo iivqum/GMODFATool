@@ -26,7 +26,10 @@ function PANEL:Init()
 	self.sequence = fatool.sequence()
 	-- All bars in the timeline
 	self.bars = {}
-	self.gap_between_bars = 32
+	-- Gap between bars
+	self.bar_gap = 4
+	-- Height of each bar
+	self.bar_height = 16
 	
 	self:Dock(FILL)
 	
@@ -50,10 +53,9 @@ function PANEL:Init()
 	end
 	
 	self.timeline_canvas = self.top_scroll:Add("DPanel")
-	self.timeline_canvas:SetTall(1000)
+	--self.timeline_canvas:SetTall(1000)
 	self.timeline_canvas:Dock(FILL)
 
-	
 	function self.timeline_canvas:Paint(width, height)
 	
 	end
@@ -86,9 +88,9 @@ function PANEL:add_animation(name, start, stop)
 	animation:set_stop(stop)
 	local bar = self.timeline_canvas:Add("fatool_timeline_bar")
 	bar:set_animation(animation)
+	bar:SetTall(self.bar_height)
 	table.insert(self.bars, bar)
 	self:sort_bars()
-	PrintTable(self.sequence)
 	return animation
 end
 
@@ -109,11 +111,15 @@ function PANEL:layout_bars()
 		Purpose:
 			Ensure the bars don't overlap
 	--]]
-	local start_y
+	self:sort_bars()
+	-- Height required of the timeline to fit all of the bars
+	local minimum_required_height = 0
+	-- Y coordintate of the bar
+	local start_y = 0
 	local previous_bar_list = {}
 	for bar_index, bar in ipairs(self.bars) do
 		local does_not_overlap_previous_bars = false
-		for previous_bar_index, previous_bar in ipairs(previous_bar_list) do
+		for previous_bar_index, previous_bar in pairs(previous_bar_list) do
 			local start = bar:get_animation():get_start()
 			local stop = previous_bar:get_animation():get_stop()
 			if start > stop then
@@ -122,14 +128,17 @@ function PANEL:layout_bars()
 			end
 		end
 		if not does_not_overlap_previous_bars and #previous_bar_list > 0 then
-			start_y = start_y + self.gap_between_bars
+			start_y = start_y + self.bar_height + self.bar_gap
 		else
-			start_y = self.gap_between_bars
+			start_y = self.bar_gap
 			previous_bar_list = {}
 		end
 		bar:SetY(start_y)
+		minimum_required_height = math.max(minimum_required_height, start_y + self.bar_height)
 		table.insert(previous_bar_list, bar)
 	end
+	self.timeline_canvas:SetTall(minimum_required_height)
+	self.timeline_canvas:Dock(TOP)
 end
 
 function PANEL:Think()
