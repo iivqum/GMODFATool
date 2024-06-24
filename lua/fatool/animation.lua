@@ -37,7 +37,7 @@ function animation:get_stop()
 end
 
 function animation:set_start(start_time)
-	self.start_time = start_time
+	self.start_time = math.max(start_time, 0)
 end
 
 function animation:set_stop(stop_time)

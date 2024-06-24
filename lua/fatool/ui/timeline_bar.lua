@@ -71,10 +71,48 @@ function PANEL:update_grab(is_mouse_pressed)
 	local mouse_x, mouse_y = self:local_mouse_pos()
 	local left_edge = self.edge_grab_threshold
 	local right_edge = self:GetWide() - self.edge_grab_threshold
-	
-	self.grab_state.has_left_edge = mouse_x <= left_edge
-	self.grab_state.has_right_edge = mouse_x >= right_edge
+	local has_left, has_right = self:get_edge_states()
+	self.grab_state.has_left_edge = has_left
+	self.grab_state.has_right_edge = has_right
 	self.grab_state.grabbing = true
+	self.grab_state.timeline_position = timeline:get_timeline_position()
+end
+
+function PANEL:get_edge_states()
+	local mouse_x, mouse_y = self:local_mouse_pos()
+	local left_edge = self.edge_grab_threshold
+	local right_edge = self:GetWide() - self.edge_grab_threshold
+	local has_left_edge = mouse_x <= left_edge
+	local has_right_edge = mouse_x >= right_edge
+	return has_left_edge, has_right_edge
+end
+
+function PANEL:update_cursor()
+	local has_left, has_right = self:get_edge_states()
+	if has_left or has_right then
+		self:SetCursor("sizewe")
+		return
+	end
+	self:SetCursor("sizeall")
+end
+
+function PANEL:update_actions()
+	if not self.grab_state.grabbing then
+		return
+	end
+	local timeline = fatool.ui.state:get_timeline()
+	if self.grab_state.has_left_edge then
+		self.animation:set_start(timeline:get_timeline_position())		
+		return
+	end
+	if self.grab_state.has_right_edge then
+		self.animation:set_stop(timeline:get_timeline_position())
+		return
+	end
+	-- User is grabbing middle
+	local delta = timeline:get_timeline_position() - self.grab_state.timeline_position
+	self.animation:set_start(self.animation:get_start() + delta)
+	self.animation:set_stop(self.animation:get_stop() + delta)
 	self.grab_state.timeline_position = timeline:get_timeline_position()
 end
 
@@ -88,7 +126,8 @@ function PANEL:Think()
 		self:update_grab(input.IsMouseDown(MOUSE_LEFT))
 	end
 	
-	PrintTable(self.grab_state)
+	self:update_actions()
+	self:update_cursor()
 end
 
 function PANEL:Paint()

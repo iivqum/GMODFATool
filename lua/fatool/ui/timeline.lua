@@ -24,7 +24,7 @@ function PANEL:Init()
 	self.scale = 1
 	-- Current sequence to edit
 	self.sequence = nil
-
+	
 	self:Dock(FILL)
 	
 	self.top_bar = self:Add("DPanel")
@@ -40,7 +40,7 @@ function PANEL:Init()
 	self.top_scroll = self:Add("DScrollPanel")
 	self.top_scroll:DockMargin(self.timeline_left_margin, 0, 0, 0)
 	self.top_scroll:Dock(FILL)
-	
+
 	function self.top_scroll:Paint(width, height)
 		surface.SetDrawColor(150, 150, 150)
 		surface.DrawLine(0, 0, 0, height)		
@@ -49,6 +49,7 @@ function PANEL:Init()
 	self.timeline_canvas = self.top_scroll:Add("DPanel")
 	self.timeline_canvas:SetTall(1000)
 	self.timeline_canvas:Dock(FILL)
+
 	
 	function self.timeline_canvas:Paint(width, height)
 	
