@@ -19,6 +19,7 @@ function PANEL:Init()
 	}
 	
 	self:SetMouseInputEnabled(true)
+	self:SetTall(16)
 end
 
 function PANEL:place_on_timeline()
@@ -52,6 +53,14 @@ end
 function PANEL:local_mouse_pos()
 	local mouse_x, mouse_y = gui.MousePos()
 	return self:ScreenToLocal(mouse_x, mouse_y)
+end
+
+function PANEL:set_animation(animation)
+	self.animation = animation
+end
+
+function PANEL:get_animation()
+	return self.animation
 end
 
 function PANEL:update_grab(is_mouse_pressed)
@@ -131,8 +140,10 @@ function PANEL:Think()
 end
 
 function PANEL:Paint()
-	surface.SetDrawColor(100, 0, 0)
-	self:DrawFilledRect()	
+	surface.SetDrawColor(180, 40, 40)
+	self:DrawFilledRect()
+	surface.SetDrawColor(0, 0, 0)
+	self:DrawOutlinedRect()
 end
 
 vgui.Register("fatool_timeline_bar", PANEL, "DPanel")

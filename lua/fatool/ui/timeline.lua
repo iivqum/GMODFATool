@@ -23,7 +23,10 @@ function PANEL:Init()
 	-- How zoomed the timeline is
 	self.scale = 1
 	-- Current sequence to edit
-	self.sequence = nil
+	self.sequence = fatool.sequence()
+	-- All bars in the timeline
+	self.bars = {}
+	self.gap_between_bars = 32
 	
 	self:Dock(FILL)
 	
@@ -59,11 +62,34 @@ function PANEL:Init()
 	self.bottom_scroll:Dock(BOTTOM)
 	self.bottom_scroll:SetUp(1, 10)
 	
-	local test = self.timeline_canvas:Add("fatool_timeline_bar")
-	local animation = fatool.animation()
-	test.animation = animation
-	animation:set_start(2)
-	animation:set_stop(10)
+	self:add_animation("test", 1, 2)
+	self:add_animation("test2", 3, 4)
+	self:add_animation("test3", 5, 6)
+	self:add_animation("test4", 7, 8)
+end
+
+function PANEL:sort_bars()
+	table.sort(self.bars, function(bar1, bar2)
+		local start1 = bar1:get_animation():get_start()
+		local start2 = bar2:get_animation():get_start()
+		return start1 < start2
+	end)
+end
+
+function PANEL:add_animation(name, start, stop)
+	local animation = self.sequence:add_animation(name, "flex")
+	if not animation then
+		-- Error!
+		return
+	end
+	animation:set_start(start)
+	animation:set_stop(stop)
+	local bar = self.timeline_canvas:Add("fatool_timeline_bar")
+	bar:set_animation(animation)
+	table.insert(self.bars, bar)
+	self:sort_bars()
+	PrintTable(self.sequence)
+	return animation
 end
 
 function PANEL:get_timeline_position()
@@ -78,14 +104,40 @@ function PANEL:get_timeline_position()
 	return (mouse_x / timeline_Width) * self.timeline_span + left_boundary
 end
 
+function PANEL:layout_bars()
+	--[[
+		Purpose:
+			Ensure the bars don't overlap
+	--]]
+	local start_y
+	local previous_bar_list = {}
+	for bar_index, bar in ipairs(self.bars) do
+		local does_not_overlap_previous_bars = false
+		for previous_bar_index, previous_bar in ipairs(previous_bar_list) do
+			local start = bar:get_animation():get_start()
+			local stop = previous_bar:get_animation():get_stop()
+			if start > stop then
+				does_not_overlap_previous_bars = true
+				break
+			end
+		end
+		if not does_not_overlap_previous_bars and #previous_bar_list > 0 then
+			start_y = start_y + self.gap_between_bars
+		else
+			start_y = self.gap_between_bars
+			previous_bar_list = {}
+		end
+		bar:SetY(start_y)
+		table.insert(previous_bar_list, bar)
+	end
+end
+
 function PANEL:Think()
-	if not self.sequence then
-		return
-	end
-	-- Make sure the timeline is up to date
-	for animation_index, animation in pairs(self.sequence:get_animations()) do
-		
-	end
+	self:layout_bars()
+end
+
+function PANEL:get_sequence()
+	return self.sequence
 end
 
 function PANEL:get_boundaries()

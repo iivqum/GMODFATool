@@ -4,7 +4,7 @@ include("fatool/ui/editor.lua")
 include("fatool/ui/preview.lua")
 include("fatool/ui/menubar.lua")
 
-fatool.ui = {}
+fatool.ui = fatool.ui or {}
 
 function fatool.ui.draw_vertical_dashed_line(gap, x, start_y, length, color_r, color_g, color_b)
 	local max_y = start_y + length

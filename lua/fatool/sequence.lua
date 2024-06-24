@@ -64,12 +64,15 @@ function sequence:extents()
 	return start, stop
 end
 
-function sequence:add_animation(identifier, animation_type)
+function sequence:add_animation(identifier, animation_type, override)
 	--[[
 		Purpose:
 			
 	--]]
 	assert(isstring(identifier))
+	if self.animations[identifier] and not override then
+		return
+	end
 	animation_type = animation_type or "flex"
 	local animation
 	if animation_type == "flex" then
