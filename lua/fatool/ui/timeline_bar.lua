@@ -4,7 +4,21 @@ local PANEL = {}
 function PANEL:Init()
 	-- Animation that this bar corresponds to
 	self.animation = nil
-	self.SetDragParent(self:GetParent())
+	-- How far from the edges you can change the width of the bar
+	self.edge_grab_threshold = 8
+	
+	self.grab_state = {
+		-- If user grabbed the left edge
+		has_left_edge = false,
+		-- If user grabbed the right edge
+		has_right_edge = false,
+		-- If the user is grabbing
+		grabbing = false,
+		-- Where in the timeline the grab started
+		timeline_position = 0
+	}
+	
+	self:SetMouseInputEnabled(true)
 end
 
 function PANEL:place_on_timeline()
@@ -35,14 +49,46 @@ function PANEL:place_on_timeline()
 	self:SetX(start_x)
 end
 
-function PANEL:DragHoverClick(mouse_key)
-	print(mouse_key)
+function PANEL:local_mouse_pos()
+	local mouse_x, mouse_y = gui.MousePos()
+	return self:ScreenToLocal(mouse_x, mouse_y)
+end
+
+function PANEL:update_grab(is_mouse_pressed)
+	-- If we're grabbing then don't update the grab
+	-- But if we're grabbing and the mouse is not down then release the grab
+	if self.grab_state.grabbing then
+		if not is_mouse_pressed then
+			self.grab_state.grabbing = false
+		end
+		return
+	elseif not is_mouse_pressed then
+		-- If not grabbing and the mouse is not down don't grab 
+		return
+	end
+	-- Update grab if we're not grabbing and the mouse is down
+	local timeline = fatool.ui.state:get_timeline()
+	local mouse_x, mouse_y = self:local_mouse_pos()
+	local left_edge = self.edge_grab_threshold
+	local right_edge = self:GetWide() - self.edge_grab_threshold
+	
+	self.grab_state.has_left_edge = mouse_x <= left_edge
+	self.grab_state.has_right_edge = mouse_x >= right_edge
+	self.grab_state.grabbing = true
+	self.grab_state.timeline_position = timeline:get_timeline_position()
 end
 
 function PANEL:Think()
 	self:place_on_timeline()
 	
+	if not self.grab_state.grabbing then
+		-- Make sure the initial grab is inside the bar
+		self:update_grab(self:IsHovered() and input.IsMouseDown(MOUSE_LEFT))
+	else
+		self:update_grab(input.IsMouseDown(MOUSE_LEFT))
+	end
 	
+	PrintTable(self.grab_state)
 end
 
 function PANEL:Paint()
