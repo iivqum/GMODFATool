@@ -74,12 +74,22 @@ function PANEL:Init()
 	self.editor.panel = self.editor:Add("fatool_editor")
 end
 
+function PANEL:get_editor()
+	return self.editor.panel
+end
+
+function PANEL:get_timeline()
+	return self.timeline.panel
+end
+
+function PANEL:get_preview()
+	return self.preview.panel
+end
 
 vgui.Register("fatool_ui", PANEL, "DFrame")
 
-
 function fatool.ui.open()
-	vgui.Create("fatool_ui")
+	fatool.ui.state = vgui.Create("fatool_ui")
 end
 
 concommand.Add("fatool",fatool.ui.open)

@@ -1,4 +1,4 @@
-include("fatool/ui/timeline_channel.lua")
+include("fatool/ui/timeline_bar.lua")
 
 local function closest_multiples(n, factor)
 	--[[
@@ -44,7 +44,7 @@ function PANEL:Init()
 	function self.top_scroll:Paint(width, height)
 		surface.SetDrawColor(150, 150, 150)
 		surface.DrawLine(0, 0, 0, height)		
-	end	
+	end
 	
 	self.timeline_canvas = self.top_scroll:Add("DPanel")
 	self.timeline_canvas:SetTall(1000)
@@ -57,14 +57,20 @@ function PANEL:Init()
 	self.bottom_scroll = self:Add("DHScrollBar")
 	self.bottom_scroll:Dock(BOTTOM)
 	self.bottom_scroll:SetUp(1, 10)
+	
+	local test = self.timeline_canvas:Add("fatool_timeline_bar")
+	local animation = fatool.animation()
+	test.animation = animation
+	animation:set_start(2)
+	animation:set_stop(10)
 end
 
-function PANEL:get_mouse_time()
+function PANEL:get_timeline_position()
 	--[[
 		Purpose:
 			Get the time at the user's mouse position
 	--]]
-	local left_boundary, right_boundary = self:get_time_boundaries()
+	local left_boundary, right_boundary = self:get_boundaries()
 	local mouse_x, mouse_y = self.top_scroll:GetCanvas():ScreenToLocal(gui.MouseX(), gui.MouseY())
 	local timeline_Width = self.top_scroll:GetCanvas():GetWide()
 	mouse_x = math.Clamp(mouse_x, 0, timeline_Width)
@@ -81,7 +87,7 @@ function PANEL:Think()
 	end
 end
 
-function PANEL:get_time_boundaries()
+function PANEL:get_boundaries()
 	--[[
 		Purpose:
 			Get the time corresponding to the left and right borders
@@ -91,13 +97,17 @@ function PANEL:get_time_boundaries()
 	return start_time, stop_time
 end
 
+function PANEL:get_span()
+	return self.timeline_span
+end
+
 function PANEL:draw_markers()
 	-- How many markers are on the screen
 	local marker_amount = math.floor(self.timeline_span / self.timeline_step_seconds)
 	-- Distance between markers on the timeline
 	local marker_step = self.top_scroll:GetCanvas():GetWide() / marker_amount
 	-- The time that corresponds to the leftmost border of the timeline
-	local marker_start_time = self:get_time_boundaries()
+	local marker_start_time = self:get_boundaries()
 	-- Closest marker boundaries
 	local marker_lower, marker_upper = closest_multiples(marker_start_time, self.timeline_step_seconds)
 	-- Where the markers will start from the leftmost border
