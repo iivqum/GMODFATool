@@ -53,7 +53,7 @@ function PANEL:Init()
 	end
 	
 	self.timeline_canvas = self.top_scroll:Add("DPanel")
-	--self.timeline_canvas:SetTall(1000)
+	self.timeline_canvas:SetTall(1000)
 	self.timeline_canvas:Dock(FILL)
 
 	function self.timeline_canvas:Paint(width, height)
@@ -112,6 +112,7 @@ function PANEL:layout_bars()
 			Ensure the bars don't overlap
 	--]]
 	self:sort_bars()
+	--[[
 	-- Height required of the timeline to fit all of the bars
 	local minimum_required_height = 0
 	-- Y coordintate of the bar
@@ -139,6 +140,31 @@ function PANEL:layout_bars()
 	end
 	self.timeline_canvas:SetTall(minimum_required_height)
 	self.timeline_canvas:Dock(TOP)
+	--]]
+	local bar_rows = {}
+	for bar_index, bar in ipairs(self.bars) do
+		local start = bar:get_animation():get_start()
+		local first_free_row = 0
+		for row_index, row in ipairs(bar_rows) do
+			local intersects_with_row = false
+			for previous_bar_index, previous_bar in ipairs(row) do
+				local stop = previous_bar:get_animation():get_stop()
+				if start < stop then
+					intersects_with_row = true
+					break
+				end
+			end
+			if not intersects_with_row then
+				first_free_row = row_index
+				break
+			end
+		end
+		if first_free_row == 0 then
+			first_free_row = table.insert(bar_rows, {})
+		end
+		table.insert(bar_rows[first_free_row], bar)
+		bar:SetY((first_free_row - 1) * (self.bar_height + self.bar_gap))
+	end
 end
 
 function PANEL:Think()
