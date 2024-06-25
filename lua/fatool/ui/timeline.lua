@@ -112,35 +112,6 @@ function PANEL:layout_bars()
 			Ensure the bars don't overlap
 	--]]
 	self:sort_bars()
-	--[[
-	-- Height required of the timeline to fit all of the bars
-	local minimum_required_height = 0
-	-- Y coordintate of the bar
-	local start_y = 0
-	local previous_bar_list = {}
-	for bar_index, bar in ipairs(self.bars) do
-		local does_not_overlap_previous_bars = false
-		for previous_bar_index, previous_bar in pairs(previous_bar_list) do
-			local start = bar:get_animation():get_start()
-			local stop = previous_bar:get_animation():get_stop()
-			if start > stop then
-				does_not_overlap_previous_bars = true
-				break
-			end
-		end
-		if not does_not_overlap_previous_bars and #previous_bar_list > 0 then
-			start_y = start_y + self.bar_height + self.bar_gap
-		else
-			start_y = self.bar_gap
-			previous_bar_list = {}
-		end
-		bar:SetY(start_y)
-		minimum_required_height = math.max(minimum_required_height, start_y + self.bar_height)
-		table.insert(previous_bar_list, bar)
-	end
-	self.timeline_canvas:SetTall(minimum_required_height)
-	self.timeline_canvas:Dock(TOP)
-	--]]
 	local bar_rows = {}
 	for bar_index, bar in ipairs(self.bars) do
 		local start = bar:get_animation():get_start()
