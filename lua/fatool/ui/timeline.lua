@@ -62,8 +62,8 @@ function PANEL:Init()
 	end
 	
 	self.timeline_canvas = self.top_scroll:Add("DPanel")
-	self.timeline_canvas:SetTall(1000)
-	self.timeline_canvas:Dock(FILL)
+	--self.timeline_canvas:SetTall(1000)
+	self.timeline_canvas:Dock(TOP)
 
 	function self.timeline_canvas:Paint(width, height)
 	end
@@ -120,6 +120,8 @@ function PANEL:layout_bars()
 			Ensure the bars don't overlap
 	--]]
 	self:sort_bars()
+	-- Minimum height for the panel containing the bars
+	local minimum_height = 0
 	local bar_rows = {}
 	for bar_index, bar in ipairs(self.bars) do
 		local start = bar:get_animation():get_start()
@@ -142,8 +144,11 @@ function PANEL:layout_bars()
 			first_free_row = table.insert(bar_rows, {})
 		end
 		table.insert(bar_rows[first_free_row], bar)
+		local y = (first_free_row - 1) * (self.bar_height + self.bar_gap)
+		minimum_height = math.max(minimum_height, y + self.bar_height)
 		bar:SetY((first_free_row - 1) * (self.bar_height + self.bar_gap))
 	end
+	self.timeline_canvas:SetTall(minimum_height)
 end
 
 function PANEL:Think()
@@ -162,6 +167,12 @@ function PANEL:get_boundaries()
 	local start_time = self.bottom_scroll:GetOffset() * -1
 	local stop_time = start_time + self.timeline_span
 	return start_time, stop_time
+end
+
+function PANEL:time_to_coordinate(t)
+	local start, stop = self:get_boundaries()
+	local delta = t - start
+	return math.floor(delta / self.timeline_span * self.top_scroll:GetCanvas():GetWide()) + self.timeline_left_margin
 end
 
 function PANEL:get_span()
@@ -189,7 +200,15 @@ function PANEL:draw_markers()
 			draw.DrawText(marker_number, "DefaultSmall", marker_x, marker_y, nil, TEXT_ALIGN_CENTER)
 			fatool.ui.draw_vertical_dashed_line(3, marker_x, self.top_scroll:GetY(), self.top_scroll:GetTall(), 150, 150, 150)
 		end
-	end	
+	end
+	-- Draw max sequence time
+	local sequence_max = 0
+	for bar_index, bar in ipairs(self.bars) do
+		local animation = bar:get_animation()
+		sequence_max = math.max(sequence_max, animation:get_stop())
+	end
+	local marker_x = math.max(self:time_to_coordinate(sequence_max), self.timeline_left_margin)
+	fatool.ui.draw_vertical_dashed_line(3, marker_x, self.top_scroll:GetY(), self.top_scroll:GetTall(), 10, 10, 200)
 end
 
 function PANEL:Paint(width, height)
