@@ -1,4 +1,5 @@
 include("fatool/ui/spline.lua")
+include("fatool/ui/grabbable.lua")
 include("fatool/ui/timeline.lua")
 include("fatool/ui/editor.lua")
 include("fatool/ui/preview.lua")

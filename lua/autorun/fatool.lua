@@ -12,6 +12,7 @@ AddCSLuaFile("fatool/ui/timeline_bar.lua")
 AddCSLuaFile("fatool/ui/preview.lua")
 AddCSLuaFile("fatool/ui/editor.lua")
 AddCSLuaFile("fatool/ui/menubar.lua")
+AddCSLuaFile("fatool/ui/grabbable.lua")
 
 if SERVER then
 	return

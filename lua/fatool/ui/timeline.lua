@@ -10,6 +10,15 @@ local function closest_multiples(n, factor)
 	return lowest_multiple * factor, highest_multiple * factor
 end
 
+local function get_edge_state(panel)
+	local mouse_x, mouse_y = self:ScreenToLocal(gui.MousePos())
+	local left_edge = panel.edge_grab_threshold
+	local right_edge = panel:GetWide() - 4
+	local has_left_edge = mouse_x <= left_edge
+	local has_right_edge = mouse_x >= right_edge
+	return has_left_edge, has_right_edge
+end
+
 local PANEL = {}
 
 function PANEL:Init()
@@ -57,7 +66,6 @@ function PANEL:Init()
 	self.timeline_canvas:Dock(FILL)
 
 	function self.timeline_canvas:Paint(width, height)
-	
 	end
 	
 	self.bottom_scroll = self:Add("DHScrollBar")
