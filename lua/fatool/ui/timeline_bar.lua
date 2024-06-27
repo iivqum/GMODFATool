@@ -8,7 +8,7 @@ function PANEL:Init()
 	self.start_timeline_position = 0
 	
 	self:SetMouseInputEnabled(true)
-	self:SetTall(16)
+	self:SetTall(24)
 end
 
 function PANEL:place_on_timeline()

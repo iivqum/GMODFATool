@@ -28,7 +28,7 @@ function PANEL:Init()
 	self.timeline_span = 10
 	-- Maximum time step between timeline divisons
 	self.timeline_step_seconds = 0.5
-	self.timeline_top_bar_height = 16	
+	self.timeline_top_bar_height = 32	
 	-- How zoomed the timeline is
 	self.scale = 1
 	-- Current sequence to edit
@@ -37,8 +37,6 @@ function PANEL:Init()
 	self.bars = {}
 	-- Gap between bars
 	self.bar_gap = 4
-	-- Height of each bar
-	self.bar_height = 16
 	
 	self:Dock(FILL)
 	
@@ -52,6 +50,35 @@ function PANEL:Init()
 		--self:DrawFilledRect()
 	end
 	
+	self.scrubber = self.top_bar:Add("fatool_grabby")
+	self.scrubber:SetTall(self.timeline_top_bar_height * 0.5)
+	self.scrubber:CenterVertical(0.4)
+	self.scrubber:SetWide(self.timeline_left_margin * 2)
+	self.scrubber.timeline_position = 0
+	
+	function self.scrubber.on_grabbing(panel)
+		panel.timeline_position = self:get_timeline_position()
+	end
+	
+	function self.scrubber.Think(panel)
+		panel:update_grab()
+		-- Center the scrubber bar on the marker
+		local marker_x = self:time_to_coordinate(self.scrubber.timeline_position)
+		local scrubber_x = marker_x - panel:GetWide() * 0.5
+		panel:SetX(scrubber_x)
+	end
+	
+	function self.scrubber.Paint(panel)
+		surface.SetDrawColor(40, 140, 40)
+		panel:DrawFilledRect()
+		surface.SetDrawColor(0, 0, 0)
+		panel:DrawOutlinedRect()
+		local scrubber_text = math.Truncate(panel.timeline_position, 2)
+		local scrubber_x = panel:GetWide() * 0.5
+		local scrubber_y = panel:GetTall() * 0.5 - draw.GetFontHeight("DefaultSmall") * 0.5
+		draw.DrawText(scrubber_text, "DefaultSmall", scrubber_x, scrubber_y, nil, TEXT_ALIGN_CENTER)
+	end
+	
 	self.top_scroll = self:Add("DScrollPanel")
 	self.top_scroll:DockMargin(self.timeline_left_margin, 0, 0, 0)
 	self.top_scroll:Dock(FILL)
@@ -62,7 +89,6 @@ function PANEL:Init()
 	end
 	
 	self.timeline_canvas = self.top_scroll:Add("DPanel")
-	--self.timeline_canvas:SetTall(1000)
 	self.timeline_canvas:Dock(TOP)
 
 	function self.timeline_canvas:Paint(width, height)
@@ -76,6 +102,8 @@ function PANEL:Init()
 	self:add_animation("test2", 3, 4)
 	self:add_animation("test3", 5, 6)
 	self:add_animation("test4", 7, 8)
+	
+	
 end
 
 function PANEL:sort_bars()
@@ -96,7 +124,6 @@ function PANEL:add_animation(name, start, stop)
 	animation:set_stop(stop)
 	local bar = self.timeline_canvas:Add("fatool_timeline_bar")
 	bar:set_animation(animation)
-	bar:SetTall(self.bar_height)
 	table.insert(self.bars, bar)
 	self:sort_bars()
 	return animation
@@ -144,9 +171,9 @@ function PANEL:layout_bars()
 			first_free_row = table.insert(bar_rows, {})
 		end
 		table.insert(bar_rows[first_free_row], bar)
-		local y = (first_free_row - 1) * (self.bar_height + self.bar_gap)
-		minimum_height = math.max(minimum_height, y + self.bar_height)
-		bar:SetY((first_free_row - 1) * (self.bar_height + self.bar_gap))
+		local y = (first_free_row - 1) * (bar:GetTall() + self.bar_gap)
+		minimum_height = math.max(minimum_height, y + bar:GetTall())
+		bar:SetY((first_free_row - 1) * (bar:GetTall() + self.bar_gap))
 	end
 	self.timeline_canvas:SetTall(minimum_height)
 end
@@ -172,14 +199,15 @@ end
 function PANEL:time_to_coordinate(t)
 	local start, stop = self:get_boundaries()
 	local delta = t - start
-	return math.floor(delta / self.timeline_span * self.top_scroll:GetCanvas():GetWide()) + self.timeline_left_margin
+	local x = math.floor(delta / self.timeline_span * self.top_scroll:GetCanvas():GetWide()) + self.timeline_left_margin
+	return math.Clamp(x, self.timeline_left_margin, self.top_scroll:GetCanvas():GetWide())
 end
 
 function PANEL:get_span()
-	return self.timeline_span
+	return self.timeline_span	
 end
 
-function PANEL:draw_markers()
+function PANEL:draw_timeline_markers()
 	-- How many markers are on the screen
 	local marker_amount = math.floor(self.timeline_span / self.timeline_step_seconds)
 	-- Distance between markers on the timeline
@@ -201,21 +229,34 @@ function PANEL:draw_markers()
 			fatool.ui.draw_vertical_dashed_line(3, marker_x, self.top_scroll:GetY(), self.top_scroll:GetTall(), 150, 150, 150)
 		end
 	end
+end
+
+function PANEL:draw_max_sequence_marker()
 	-- Draw max sequence time
 	local sequence_max = 0
 	for bar_index, bar in ipairs(self.bars) do
 		local animation = bar:get_animation()
 		sequence_max = math.max(sequence_max, animation:get_stop())
 	end
-	local marker_x = math.max(self:time_to_coordinate(sequence_max), self.timeline_left_margin)
+	local marker_x = self:time_to_coordinate(sequence_max)
 	fatool.ui.draw_vertical_dashed_line(3, marker_x, self.top_scroll:GetY(), self.top_scroll:GetTall(), 10, 10, 200)
+end
+
+function PANEL:draw_scrubber_marker()
+	local marker_x = self:time_to_coordinate(self.scrubber.timeline_position)
+	fatool.ui.draw_vertical_dashed_line(3, marker_x, self.top_scroll:GetY(), self.top_scroll:GetTall(), 10, 10, 10)	
 end
 
 function PANEL:Paint(width, height)
 	surface.SetDrawColor(80, 80, 80)
 	self:DrawFilledRect()
-	self:draw_markers()
+	self:draw_timeline_markers()
+	self:draw_max_sequence_marker()
 	--self:draw_test()
+end
+
+function PANEL:PaintOver()
+	self:draw_scrubber_marker()
 end
 
 function PANEL:OnMousePressed(mouse_key)

@@ -8,6 +8,8 @@ function PANEL:Init()
 		grabbing = false
 	}
 	self.edge_grab_threshold = 8
+	
+	self:SetCursor("hand")
 end
 
 function PANEL:local_mouse_pos()
@@ -21,6 +23,8 @@ function PANEL:update_grab_state(is_mouse_pressed)
 	if self.grab_state.grabbing then
 		if not is_mouse_pressed then
 			self.grab_state.grabbing = false
+		else
+			self:on_grabbing()
 		end
 		return
 	elseif not is_mouse_pressed then
@@ -62,6 +66,9 @@ end
 function PANEL:on_grab()
 end
 
+function PANEL:on_grabbing()
+end
+
 function PANEL:OnMousePressed(mouse_code)
 	self:update_grab_state(self:IsHovered() and mouse_code == MOUSE_LEFT)
 end
@@ -70,6 +77,10 @@ function PANEL:update_grab()
 	if self.grab_state.grabbing then
 		self:update_grab_state(input.IsMouseDown(MOUSE_LEFT))
 	end
+end
+
+function PANEL:Think()
+	self:update_grab()
 end
 
 vgui.Register("fatool_grabby", PANEL, "DPanel")
