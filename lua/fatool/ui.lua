@@ -41,6 +41,12 @@ function fatool.ui.draw_dashed_rectangle(gap, x, y, width, height)
 	fatool.ui.draw_vertical_dashed_line(gap, x + width, y, height)
 end
 
+function fatool.ui.get_font_height(font)
+	assert(isstring(font))
+	surface.SetFont(font)
+	return select(2, surface.GetTextSize(""))
+end
+
 local PANEL = {}
 
 function PANEL:Init()

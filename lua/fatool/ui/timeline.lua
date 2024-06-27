@@ -32,7 +32,7 @@ function PANEL:Init()
 	self:Dock(FILL)
 	
 	self.top_bar = self:Add("DPanel")
-	self.top_bar:SetTall(self.timeline_top_bar_height)
+	self.top_bar:SetTall(fatool.ui.get_font_height("DefaultSmall") * 2)
 	self.top_bar:Dock(TOP)
 	
 	function self.top_bar:Paint(width, height)	
@@ -42,8 +42,8 @@ function PANEL:Init()
 	end
 	
 	self.scrubber = self.top_bar:Add("fatool_grabby")
-	self.scrubber:SetTall(self.timeline_top_bar_height * 0.5)
-	self.scrubber:CenterVertical(0.4)
+	
+	self.scrubber:SetTall(fatool.ui.get_font_height("DefaultSmall"))
 	self.scrubber:SetWide(self.timeline_left_margin * 2)
 	self.scrubber.timeline_position = 0
 	self.scrubber.playing = false
@@ -167,7 +167,7 @@ function PANEL:layout_bars()
 		table.insert(bar_rows[first_free_row], bar)
 		local y = (first_free_row - 1) * (bar:GetTall() + self.bar_gap)
 		minimum_height = math.max(minimum_height, y + bar:GetTall())
-		bar:SetY((first_free_row - 1) * (bar:GetTall() + self.bar_gap))
+		bar:SetY(y)
 	end
 	self.timeline_canvas:SetTall(minimum_height)
 end
