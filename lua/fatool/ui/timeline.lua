@@ -1,5 +1,7 @@
 include("fatool/ui/timeline_bar.lua")
 
+local timeline_font = "DefaultSmall"
+
 local function closest_multiples(n, factor)
 	--[[
 		Purpose:
@@ -32,7 +34,7 @@ function PANEL:Init()
 	self:Dock(FILL)
 	
 	self.top_bar = self:Add("DPanel")
-	self.top_bar:SetTall(fatool.ui.get_font_height("DefaultSmall") * 2)
+	self.top_bar:SetTall(fatool.ui.get_font_height(timeline_font) * 2)
 	self.top_bar:Dock(TOP)
 	
 	function self.top_bar:Paint(width, height)	
@@ -43,7 +45,7 @@ function PANEL:Init()
 	
 	self.scrubber = self.top_bar:Add("fatool_grabby")
 	
-	self.scrubber:SetTall(fatool.ui.get_font_height("DefaultSmall"))
+	self.scrubber:SetTall(fatool.ui.get_font_height(timeline_font))
 	self.scrubber:SetWide(self.timeline_left_margin * 2)
 	self.scrubber.timeline_position = 0
 	self.scrubber.playing = false
@@ -67,8 +69,8 @@ function PANEL:Init()
 		panel:DrawOutlinedRect()
 		local scrubber_text = math.Truncate(panel.timeline_position, 2)
 		local scrubber_x = math.floor(panel:GetWide() * 0.5)
-		local scrubber_y = math.floor(panel:GetTall() * 0.5 - draw.GetFontHeight("DefaultSmall") * 0.5)
-		draw.DrawText(scrubber_text, "DefaultSmall", scrubber_x, scrubber_y, nil, TEXT_ALIGN_CENTER)
+		local scrubber_y = math.floor(panel:GetTall() * 0.5 - draw.GetFontHeight(timeline_font) * 0.5)
+		draw.DrawText(scrubber_text, timeline_font, scrubber_x, scrubber_y, nil, TEXT_ALIGN_CENTER)
 		
 		if panel.playing then
 			panel.timeline_position = math.min(panel.timeline_position + FrameTime(), self.sequence:get_stop())
@@ -218,9 +220,9 @@ function PANEL:draw_timeline_markers()
 		marker_number = tostring(marker_number)
 		local marker_x = math.floor(marker_start_position + self.timeline_left_margin + marker_step * i) 
 		if marker_x >= self.timeline_left_margin then
-			local marker_y = self.top_scroll:GetY() - draw.GetFontHeight("DefaultSmall")
+			local marker_y = self.top_scroll:GetY() - draw.GetFontHeight(timeline_font)
 			
-			draw.DrawText(marker_number, "DefaultSmall", marker_x, marker_y, nil, TEXT_ALIGN_CENTER)
+			draw.DrawText(marker_number, timeline_font, marker_x, marker_y, nil, TEXT_ALIGN_CENTER)
 			fatool.ui.draw_vertical_dashed_line(3, marker_x, self.top_scroll:GetY(), self.top_scroll:GetTall())
 		end
 	end
