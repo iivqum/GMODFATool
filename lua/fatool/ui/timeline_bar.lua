@@ -6,9 +6,15 @@ function PANEL:Init()
 	self.animation = nil
 	-- Timeline position when a grab takes place
 	self.start_timeline_position = 0
+	-- Gap around top and bottom edges
+	self.gap = 12
+	self.base_width = 24
+	
+	self.identifier = "None"
+	
 	
 	self:SetMouseInputEnabled(true)
-	self:SetTall(24)
+	self:SetTall(self.gap + self.base_width)
 end
 
 function PANEL:place_on_timeline()
@@ -44,8 +50,10 @@ function PANEL:local_mouse_pos()
 	return self:ScreenToLocal(mouse_x, mouse_y)
 end
 
-function PANEL:set_animation(animation)
+function PANEL:set_animation(animation, identifier)
+	assert(isstring(identifier))
 	self.animation = animation
+	self.identifier = identifier
 end
 
 function PANEL:get_animation()
@@ -92,11 +100,19 @@ function PANEL:Think()
 	self:update_grab()
 end
 
-function PANEL:Paint()
+function PANEL:Paint(width, height)
 	surface.SetDrawColor(180, 40, 40)
-	self:DrawFilledRect()
+	surface.DrawRect(0, self.gap, width, height - self.gap * 2)
+	
 	surface.SetDrawColor(0, 0, 0)
-	self:DrawOutlinedRect()
+	surface.DrawOutlinedRect(0, self.gap, width, height - self.gap * 2)
+	
+	draw.DrawText(self.identifier, "DefaultSmall", 0, height - self.gap, nil, TEXT_ALIGN_LEFT)
+	
+	if self:is_grabbed() then
+		surface.SetDrawColor(180, 180, 180)
+		fatool.ui.draw_dashed_rectangle(3, 0, 0, width, height)
+	end
 end
 
 vgui.Register("fatool_timeline_bar", PANEL, "fatool_grabby")

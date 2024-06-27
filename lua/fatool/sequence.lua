@@ -64,6 +64,14 @@ function sequence:extents()
 	return start, stop
 end
 
+function sequence:get_stop()
+	local sequence_max = 0
+	for animation_id, animation in pairs(self.animations) do
+		sequence_max = math.max(sequence_max, animation:get_stop())
+	end
+	return sequence_max
+end
+
 function sequence:add_animation(identifier, animation_type, override)
 	--[[
 		Purpose:

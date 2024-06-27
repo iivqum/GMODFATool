@@ -7,9 +7,8 @@ include("fatool/ui/menubar.lua")
 
 fatool.ui = fatool.ui or {}
 
-function fatool.ui.draw_vertical_dashed_line(gap, x, start_y, length, color_r, color_g, color_b)
+function fatool.ui.draw_vertical_dashed_line(gap, x, start_y, length)
 	local max_y = start_y + length
-	surface.SetDrawColor(color_r, color_g, color_b)
 	for i = 0, math.floor(length / gap * 0.5) do
 		local y_start = start_y + i * gap * 2
 		if y_start >= max_y then
@@ -20,9 +19,8 @@ function fatool.ui.draw_vertical_dashed_line(gap, x, start_y, length, color_r, c
 	end
 end
 
-function fatool.ui.draw_horizontal_dashed_line(gap, y, start_x, length, color_r, color_g, color_b)
+function fatool.ui.draw_horizontal_dashed_line(gap, y, start_x, length)
 	local max_x = start_x + length
-	surface.SetDrawColor(color_r, color_g, color_b)
 	for i = 0, math.floor(length / gap * 0.5) do
 		local x_start = start_x + i * gap * 2
 		if x_start >= max_x then
@@ -31,6 +29,16 @@ function fatool.ui.draw_horizontal_dashed_line(gap, y, start_x, length, color_r,
 		local x_end = math.min(x_start + gap, max_x)
 		surface.DrawLine(x_start, y, x_end, y)
 	end
+end
+
+function fatool.ui.draw_dashed_rectangle(gap, x, y, width, height)
+	local width = width - 1
+	local height = height - 1
+
+	fatool.ui.draw_horizontal_dashed_line(gap, y, x, width)
+	fatool.ui.draw_horizontal_dashed_line(gap, y + height, x, width)
+	fatool.ui.draw_vertical_dashed_line(gap, x, y, height)
+	fatool.ui.draw_vertical_dashed_line(gap, x + width, y, height)
 end
 
 local PANEL = {}
