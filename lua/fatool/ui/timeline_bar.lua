@@ -109,6 +109,10 @@ function PANEL:Paint(width, height)
 	
 	draw.DrawText(self.identifier, "DefaultSmall", 0, height - self.gap, nil, TEXT_ALIGN_LEFT)
 	
+	if self.animation:get_type() == "flex" then
+		draw.DrawText("Flex", "DefaultSmall", width, height - self.gap, nil, TEXT_ALIGN_RIGHT)
+	end
+	
 	if self:is_grabbed() then
 		surface.SetDrawColor(180, 180, 180)
 		fatool.ui.draw_dashed_rectangle(3, 0, 0, width, height)

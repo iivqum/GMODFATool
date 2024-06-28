@@ -12,6 +12,10 @@ local function closest_multiples(n, factor)
 	return lowest_multiple * factor, highest_multiple * factor
 end
 
+local function get_within_bounds(fraction, lower_bound, upper_bound)
+	return lower_bound + (upper_bound - lower_bound) * fraction
+end
+
 local PANEL = {}
 
 function PANEL:Init()
@@ -58,7 +62,9 @@ function PANEL:Init()
 		panel:update_grab()
 		-- Center the scrubber bar on the marker
 		local marker_x = self:time_to_coordinate(panel.timeline_position)
-		local scrubber_x = marker_x - panel:GetWide() * 0.5
+		local half_width = panel:GetWide() * 0.5
+		marker_x = math.min(marker_x, self:GetWide() - half_width)
+		local scrubber_x = marker_x - half_width
 		panel:SetX(scrubber_x)
 	end
 	
@@ -100,6 +106,8 @@ function PANEL:Init()
 	self:add_animation("test2", 3, 4)
 	self:add_animation("test3", 5, 6)
 	self:add_animation("test4", 7, 8)
+	self:add_animation("test5", 7, 8)
+	self:add_animation("test6", 7, 8)
 end
 
 function PANEL:sort_bars()
@@ -132,9 +140,10 @@ function PANEL:get_timeline_position()
 	--]]
 	local left_boundary, right_boundary = self:get_boundaries()
 	local mouse_x, mouse_y = self.top_scroll:GetCanvas():ScreenToLocal(gui.MouseX(), gui.MouseY())
-	local timeline_Width = self.top_scroll:GetCanvas():GetWide()
-	mouse_x = math.Clamp(mouse_x, 0, timeline_Width)
-	return (mouse_x / timeline_Width) * self.timeline_span + left_boundary
+	local timeline_width = self.top_scroll:GetCanvas():GetWide()
+	mouse_x = math.Clamp(mouse_x, 0, timeline_width)
+	local fraction = mouse_x / timeline_width
+	return fraction * (right_boundary - left_boundary) + left_boundary
 end
 
 function PANEL:layout_bars()
@@ -193,10 +202,15 @@ function PANEL:get_boundaries()
 end
 
 function PANEL:time_to_coordinate(t)
+	--[[
+		Purpose:
+			Get the x value corresponding to time t relative to the timeline parent panel
+	--]]
 	local start, stop = self:get_boundaries()
 	local delta = t - start
-	local x = math.floor(delta / self.timeline_span * self.top_scroll:GetCanvas():GetWide()) + self.timeline_left_margin
-	return math.Clamp(x, self.timeline_left_margin, self.top_scroll:GetCanvas():GetWide())
+	local fraction = math.Clamp(delta / self.timeline_span, 0, 1)
+	local x = get_within_bounds(fraction, self.timeline_left_margin, self:GetWide())
+	return math.floor(x)
 end
 
 function PANEL:get_span()
@@ -230,7 +244,7 @@ end
 
 function PANEL:draw_max_sequence_marker()
 	-- Draw max sequence time
-	surface.SetDrawColor(10, 10, 200)
+	surface.SetDrawColor(200, 10, 10)
 	local marker_x = self:time_to_coordinate(self.sequence:get_stop())
 	fatool.ui.draw_vertical_dashed_line(3, marker_x, self.top_scroll:GetY(), self.top_scroll:GetTall())
 end

@@ -8,7 +8,8 @@ local animation = {
 	-- End of the animation in the sequence
 	stop_time = 0,
 	-- A reference to the sequence this animation is attached to
-	sequence = nil
+	sequence = nil,
+	event_type = "flex"
 }
 
 animation.__index = animation
@@ -18,6 +19,10 @@ fatool.animation.__call = function(self)
 	return setmetatable({
 		motions = {}
 	}, animation)
+end
+
+function animation:get_type()
+	return self.event_type
 end
 
 function animation:attach_sequence(sequence)
