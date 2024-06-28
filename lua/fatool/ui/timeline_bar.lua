@@ -74,17 +74,15 @@ function PANEL:update_actions()
 		return
 	end
 	local timeline = fatool.ui.state:get_timeline()
-	if self:has_left_grab() then
-		self.animation:set_start(timeline:get_timeline_position())		
-		return
-	end
-	if self:has_right_grab() then
-		self.animation:set_stop(timeline:get_timeline_position())
-		return
-	end
 	local delta = timeline:get_timeline_position() - self.start_timeline_position
-	self.animation:set_start(self.animation:get_start() + delta)
-	self.animation:set_stop(self.animation:get_stop() + delta)
+	if self:has_left_grab() then
+		self.animation:set_start(self.animation:get_start() + delta)		
+	elseif self:has_right_grab() then
+		self.animation:set_stop(self.animation:get_stop() + delta)
+	else
+		self.animation:set_start(self.animation:get_start() + delta)
+		self.animation:set_stop(self.animation:get_stop() + delta)	
+	end
 	self.start_timeline_position = timeline:get_timeline_position()	
 end
 
@@ -110,7 +108,7 @@ function PANEL:Paint(width, height)
 	draw.DrawText(self.identifier, "DefaultSmall", 0, height - self.gap, nil, TEXT_ALIGN_LEFT)
 	
 	if self.animation:get_type() == "flex" then
-		draw.DrawText("Flex", "DefaultSmall", width, height - self.gap, nil, TEXT_ALIGN_RIGHT)
+		draw.DrawText("Flex_event", "DefaultSmall", width, height - self.gap, nil, TEXT_ALIGN_RIGHT)
 	end
 	
 	if self:is_grabbed() then

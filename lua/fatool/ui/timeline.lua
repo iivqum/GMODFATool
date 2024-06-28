@@ -100,7 +100,8 @@ function PANEL:Init()
 	
 	self.bottom_scroll = self:Add("DHScrollBar")
 	self.bottom_scroll:Dock(BOTTOM)
-	self.bottom_scroll:SetUp(1, 10)
+	--self.bottom_scroll:SetUp(1, 10)
+	self.bottom_scroll:Hide()
 	
 	self:add_animation("test", 1, 2)
 	self:add_animation("test2", 3, 4)
@@ -143,7 +144,8 @@ function PANEL:get_timeline_position()
 	local timeline_width = self.top_scroll:GetCanvas():GetWide()
 	mouse_x = math.Clamp(mouse_x, 0, timeline_width)
 	local fraction = mouse_x / timeline_width
-	return fraction * (right_boundary - left_boundary) + left_boundary
+	local timeline_position = fraction * (right_boundary - left_boundary) + left_boundary
+	return timeline_position
 end
 
 function PANEL:layout_bars()
@@ -185,6 +187,19 @@ end
 
 function PANEL:Think()
 	self:layout_bars()
+	
+	local left_boundary, right_boundary = self:get_boundaries()
+	local stop = self.sequence:get_stop()
+	if stop > self.timeline_span then
+		-- self.timeline_span * 0.5 so the timeline bars are always visible
+		local lowest, highest = closest_multiples(stop, self.timeline_span * 0.25)
+		self.bottom_scroll:Show()
+		self.bottom_scroll:SetUp(10, highest)
+		self:InvalidateLayout(true)
+	elseif self.bottom_scroll:IsVisible() then
+		self.bottom_scroll:Hide()
+		self:InvalidateLayout(true)
+	end
 end
 
 function PANEL:get_sequence()
