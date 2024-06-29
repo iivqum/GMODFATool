@@ -8,7 +8,7 @@ function PANEL:Init()
 	self.gap = 12
 	self.base_width = 24
 	
-	self.identifier = nil
+	self.animation_id = nil
 	
 	
 	self:SetMouseInputEnabled(true)
@@ -49,13 +49,13 @@ function PANEL:local_mouse_pos()
 	return self:ScreenToLocal(mouse_x, mouse_y)
 end
 
-function PANEL:set_animation(identifier)
-	assert(isstring(identifier))
-	self.identifier = identifier
+function PANEL:set_animation(animation_id)
+	assert(isstring(animation_id))
+	self.animation_id = animation_id
 end
 
 function PANEL:get_animation()
-	return fatool.ui.sequence:get_animation(self.identifier)
+	return fatool.ui.sequence:get_animation(self.animation_id)
 end
 
 function PANEL:update_cursor()
@@ -89,7 +89,7 @@ function PANEL:on_grab()
 	local timeline = fatool.ui.state:get_timeline()
 	self.start_timeline_position = timeline:get_timeline_position()
 	
-	fatool.ui.state:get_editor():set_animation(self.identifier)
+	fatool.ui.state:get_editor():set_animation(self.animation_id)
 end
 
 function PANEL:Think()
@@ -106,13 +106,14 @@ function PANEL:Paint(width, height)
 	surface.SetDrawColor(0, 0, 0)
 	surface.DrawOutlinedRect(0, self.gap, width, height - self.gap * 2)
 	
-	draw.DrawText(self.identifier, "DefaultSmall", 0, height - self.gap, nil, TEXT_ALIGN_LEFT)
+	draw.DrawText(self.animation_id, "DefaultSmall", 0, height - self.gap, nil, TEXT_ALIGN_LEFT)
 	draw.DrawText(self:get_animation():get_type(), "DefaultSmall", width, height - self.gap, nil, TEXT_ALIGN_RIGHT)
 	
+	local editor = fatool.ui.state:get_editor()
 	if self:is_grabbed() then
 		surface.SetDrawColor(180, 180, 180)
 		fatool.ui.draw_dashed_rectangle(3, 0, 0, width, height)
-		surface.SetDrawColor(162, 234, 255, 10)
+		surface.SetDrawColor(162, 234, 255, 5)
 		self:DrawFilledRect()
 	end	
 end

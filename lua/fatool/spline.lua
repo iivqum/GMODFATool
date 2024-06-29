@@ -214,3 +214,7 @@ end
 function spline:get_points()
 	return self.points
 end
+
+function spline:get_num_points()
+	return #self.points
+end

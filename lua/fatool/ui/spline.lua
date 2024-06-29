@@ -1,5 +1,5 @@
-local default_background_color = Color(255,255,255)
-local default_foreground_color = Color(0,0,255)
+local default_background_color = Color(70,70,70)
+local default_foreground_color = Color(200, 200, 200)
 
 local PANEL = {}
 
@@ -9,6 +9,10 @@ end
 
 function PANEL:get_spline()
 	return self.spline
+end
+
+function PANEL:set_spline(spline)
+	self.spline = spline
 end
 
 function PANEL:normalized_mouse_pos()
@@ -42,10 +46,17 @@ function PANEL:Paint(width, height)
 		surface.DrawRect(x, y, 4, 4)
 	end
 	
+	if not self:IsHovered() then
+		return
+	end
+	
 	local normal_mouse_x, normal_mouse_y = self:normalized_mouse_pos()
 	local y = self.spline:sample_continous(normal_mouse_x, 16)
 	
 	surface.DrawRect(normal_mouse_x * width, (1 - y) * height, 4, 4)
+	
+	fatool.ui.draw_vertical_dashed_line(3, normal_mouse_x * width, 0, height)
+	fatool.ui.draw_horizontal_dashed_line(3, normal_mouse_y * height, 0, width)
 end
 
 function PANEL:OnMousePressed(mouse_key)

@@ -5,7 +5,7 @@ fatool.sequence = {}
 local sequence = {
 	progress = 0,
 	-- The entity performing the sequence
-	actor = 0,
+	actor = nil,
 	-- Start time of the sequence
 	start = 0,
 	-- End of the sequence
@@ -19,6 +19,15 @@ fatool.sequence.__call = function(self)
 	return setmetatable({
 		animations = {}
 	}, sequence)
+end
+
+function sequence:get_progress()
+	return self.progress
+end
+
+function sequence:set_progress(progress)
+	assert(isnumber(progress))
+	self.progress = progress
 end
 
 function sequence:get_animations()
@@ -86,6 +95,10 @@ function sequence:add_animation(identifier, animation_type, override)
 		Purpose:
 			
 	--]]
+	if not IsValid(self.actor) then
+		-- Error!
+		return
+	end
 	assert(isstring(identifier))
 	if self.animations[identifier] and not override then
 		return
@@ -100,7 +113,7 @@ function sequence:add_animation(identifier, animation_type, override)
 	end
 	self.animations[identifier] = animation
 	animation:attach_sequence(self)
-	
+	animation:setup()
 	return animation
 end
 

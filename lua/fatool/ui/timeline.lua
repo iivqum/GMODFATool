@@ -49,17 +49,16 @@ function PANEL:Init()
 	
 	self.scrubber:SetTall(fatool.ui.get_font_height(timeline_font))
 	self.scrubber:SetWide(self.timeline_left_margin * 2)
-	self.scrubber.timeline_position = 0
 	self.scrubber.playing = false
 	
 	function self.scrubber.on_grabbing(panel)
-		panel.timeline_position = self:get_timeline_position()
+		fatool.ui.sequence:set_progress(self:get_timeline_position())
 	end
 	
 	function self.scrubber.Think(panel)
 		panel:update_grab()
 		-- Center the scrubber bar on the marker
-		local marker_x = self:time_to_coordinate(panel.timeline_position)
+		local marker_x = self:time_to_coordinate(fatool.ui.sequence:get_progress())
 		local half_width = panel:GetWide() * 0.5
 		marker_x = math.min(marker_x, self:GetWide() - half_width)
 		local scrubber_x = marker_x - half_width
@@ -71,16 +70,10 @@ function PANEL:Init()
 		panel:DrawFilledRect()
 		surface.SetDrawColor(0, 0, 0)
 		panel:DrawOutlinedRect()
-		local scrubber_text = math.Truncate(panel.timeline_position, 2)
+		local scrubber_text = math.Truncate(fatool.ui.sequence:get_progress(), 2)
 		local scrubber_x = math.floor(panel:GetWide() * 0.5)
 		local scrubber_y = math.floor(panel:GetTall() * 0.5 - draw.GetFontHeight(timeline_font) * 0.5)
 		draw.DrawText(scrubber_text, timeline_font, scrubber_x, scrubber_y, nil, TEXT_ALIGN_CENTER)
-		
-		local sequence = fatool.ui.sequence
-		
-		if panel.playing then
-			panel.timeline_position = math.min(panel.timeline_position + FrameTime(), sequence:get_stop())
-		end
 	end
 	
 	self.top_scroll = self:Add("DScrollPanel")
@@ -102,13 +95,6 @@ function PANEL:Init()
 	self.bottom_scroll:Dock(BOTTOM)
 	--self.bottom_scroll:SetUp(1, 10)
 	self.bottom_scroll:Hide()
-	
-	self:add_animation("test", 1, 2)
-	self:add_animation("test2", 3, 4)
-	self:add_animation("test3", 5, 6)
-	self:add_animation("test4", 7, 8)
-	self:add_animation("test5", 7, 8)
-	self:add_animation("test6", 7, 8)
 end
 
 function PANEL:sort_bars()
@@ -145,8 +131,7 @@ function PANEL:get_timeline_position()
 	local timeline_width = self.top_scroll:GetCanvas():GetWide()
 	mouse_x = math.Clamp(mouse_x, 0, timeline_width)
 	local fraction = mouse_x / timeline_width
-	local timeline_position = fraction * (right_boundary - left_boundary) + left_boundary
-	return timeline_position
+	return get_within_bounds(fraction, left_boundary, right_boundary)
 end
 
 function PANEL:layout_bars()
@@ -265,7 +250,7 @@ end
 
 function PANEL:draw_scrubber_marker()
 	surface.SetDrawColor(10, 10, 10)
-	local marker_x = self:time_to_coordinate(self.scrubber.timeline_position)
+	local marker_x = self:time_to_coordinate(fatool.ui.sequence:get_progress())
 	fatool.ui.draw_vertical_dashed_line(3, marker_x, self.top_scroll:GetY(), self.top_scroll:GetTall())	
 end
 

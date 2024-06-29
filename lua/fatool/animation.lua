@@ -33,11 +33,22 @@ function animation:apply_motion()
 end
 
 function animation:setup()
-	if self.sequence == nil or not IsValid(self.sequence:get_actor()) then
+	--[[
+		Purpose:
+			Create all data that needs to be set up
+	--]]
+	local actor = self.sequence:get_actor()
+	if self.sequence == nil or not IsValid(actor) then
 		-- Error!
 		return
 	end
-	
+	local flex_num = actor:GetFlexNum()
+	for i = 1, flex_num do
+		local flex_name = actor:GetFlexName(i)
+		if flex_name then
+			self:add_motion(flex_name)
+		end
+	end
 end
 
 function animation:get_start()
