@@ -62,7 +62,7 @@ function PANEL:time_to_coordinate(t)
 	local stop = self:get_animation():get_stop()
 	local delta = t - start
 	local fraction = math.Clamp(delta / (stop - start), 0, 1)
-	local x = fraction * self:GetWide()
+	local x = fraction * self.list:GetCanvas():GetWide()
 	return math.floor(x)
 end
 
@@ -83,7 +83,7 @@ function PANEL:get_timeline_position()
 	local left_boundary = self:get_animation():get_start()
 	local right_boundary = self:get_animation():get_stop()
 	local mouse_x, mouse_y = self:ScreenToLocal(gui.MouseX(), gui.MouseY())
-	local width = self:GetWide()
+	local width = self.list:GetCanvas():GetWide()
 	mouse_x = math.Clamp(mouse_x, 0, width)
 	local fraction = mouse_x / width
 	local timeline_position = fraction * (right_boundary - left_boundary) + left_boundary

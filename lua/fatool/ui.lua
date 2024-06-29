@@ -63,7 +63,7 @@ function PANEL:Init()
 	self.menubar:Dock(TOP)
 	
 	self.timeline = self:Add("DFrame")
-	self.timeline:SetTall(self:GetTall() * 0.35)
+	self.timeline:SetTall(self:GetTall() * 0.3)
 	self.timeline:ShowCloseButton(false)
 	self.timeline:SetDraggable(false)
 	self.timeline:SetTitle("Timeline")
