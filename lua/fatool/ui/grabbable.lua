@@ -18,6 +18,10 @@ function PANEL:local_mouse_pos()
 end
 
 function PANEL:update_grab_state(is_mouse_pressed)
+	--[[
+		Purpose:
+			Toggle the grab state and store grab data when a grab happens
+	--]]
 	-- If we're grabbing then don't update the grab
 	-- But if we're grabbing and the mouse is not down then release the grab
 	if self.grab_state.grabbing then
@@ -43,6 +47,10 @@ function PANEL:update_grab_state(is_mouse_pressed)
 end
 
 function PANEL:get_edge_states()
+	--[[
+		Purpose:
+			Get whether the mouse is hovered over the left or right edge of the panel
+	--]]
 	local mouse_x, mouse_y = self:local_mouse_pos()
 	local left_edge = self.edge_grab_threshold
 	local right_edge = self:GetWide() - self.edge_grab_threshold

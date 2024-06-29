@@ -104,6 +104,7 @@ end
 vgui.Register("fatool_ui", PANEL, "DFrame")
 
 function fatool.ui.open()
+	fatool.ui.sequence = fatool.sequence()
 	fatool.ui.state = vgui.Create("fatool_ui")
 end
 

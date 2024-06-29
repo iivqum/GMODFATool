@@ -28,8 +28,6 @@ function PANEL:Init()
 	self.timeline_top_bar_height = 32	
 	-- How zoomed the timeline is
 	self.scale = 1
-	-- Current sequence to edit
-	self.sequence = fatool.sequence()
 	-- All bars in the timeline
 	self.bars = {}
 	-- Gap between bars
@@ -78,8 +76,10 @@ function PANEL:Init()
 		local scrubber_y = math.floor(panel:GetTall() * 0.5 - draw.GetFontHeight(timeline_font) * 0.5)
 		draw.DrawText(scrubber_text, timeline_font, scrubber_x, scrubber_y, nil, TEXT_ALIGN_CENTER)
 		
+		local sequence = fatool.ui.sequence
+		
 		if panel.playing then
-			panel.timeline_position = math.min(panel.timeline_position + FrameTime(), self.sequence:get_stop())
+			panel.timeline_position = math.min(panel.timeline_position + FrameTime(), sequence:get_stop())
 		end
 	end
 	
@@ -120,7 +120,8 @@ function PANEL:sort_bars()
 end
 
 function PANEL:add_animation(name, start, stop)
-	local animation = self.sequence:add_animation(name, "flex")
+	local sequence = fatool.ui.sequence
+	local animation = sequence:add_animation(name, "flex")
 	if not animation then
 		-- Error!
 		return
@@ -128,7 +129,7 @@ function PANEL:add_animation(name, start, stop)
 	animation:set_start(start)
 	animation:set_stop(stop)
 	local bar = self.timeline_canvas:Add("fatool_timeline_bar")
-	bar:set_animation(animation, name)
+	bar:set_animation(name)
 	table.insert(self.bars, bar)
 	self:sort_bars()
 	return animation
@@ -189,7 +190,8 @@ function PANEL:Think()
 	self:layout_bars()
 	
 	local left_boundary, right_boundary = self:get_boundaries()
-	local stop = self.sequence:get_stop()
+	local sequence = fatool.ui.sequence
+	local stop = sequence:get_stop()
 	if stop > self.timeline_span then
 		-- self.timeline_span * 0.5 so the timeline bars are always visible
 		local lowest, highest = closest_multiples(stop, self.timeline_span * 0.25)
@@ -200,10 +202,6 @@ function PANEL:Think()
 		self.bottom_scroll:Hide()
 		self:InvalidateLayout(true)
 	end
-end
-
-function PANEL:get_sequence()
-	return self.sequence
 end
 
 function PANEL:get_boundaries()
@@ -259,8 +257,9 @@ end
 
 function PANEL:draw_max_sequence_marker()
 	-- Draw max sequence time
+	local sequence = fatool.ui.sequence
 	surface.SetDrawColor(200, 10, 10)
-	local marker_x = self:time_to_coordinate(self.sequence:get_stop())
+	local marker_x = self:time_to_coordinate(sequence:get_stop())
 	fatool.ui.draw_vertical_dashed_line(3, marker_x, self.top_scroll:GetY(), self.top_scroll:GetTall())
 end
 

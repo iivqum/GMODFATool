@@ -25,6 +25,11 @@ function sequence:get_animations()
 	return self.animations
 end
 
+function sequence:get_animation(identifier)
+	assert(isstring(identifier))
+	return self.animations[identifier]
+end
+
 function sequence:update(time_delta)
 	--[[
 		Purpose:
@@ -40,6 +45,10 @@ function sequence:can_perform(entity)
 	--]]
 
 	return true
+end
+
+function sequence:get_actor()
+	return self.actor
 end
 
 function sequence:set_actor(entity)

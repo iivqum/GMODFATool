@@ -30,7 +30,14 @@ function animation:attach_sequence(sequence)
 end
 
 function animation:apply_motion()
+end
 
+function animation:setup()
+	if self.sequence == nil or not IsValid(self.sequence:get_actor()) then
+		-- Error!
+		return
+	end
+	
 end
 
 function animation:get_start()
@@ -47,6 +54,10 @@ end
 
 function animation:set_stop(stop_time)
 	self.stop_time = stop_time
+end
+
+function animation:get_motions()
+	return self.motions
 end
 
 function animation:add_motion(identifier)

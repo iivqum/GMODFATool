@@ -4,19 +4,22 @@ local PANEL = {}
 function PANEL:Init()
 	self:Dock(FILL)
 	
-	self.animation = nil
+	-- String identifier for the animation
+	self.identifier = ""
 end
 
-function PANEL:set_animation(animation)
-
+function PANEL:set_animation(identifier)
+	self.identifier = identifier
 end
+
+
 
 function PANEL:Paint(width, height)
 	surface.SetDrawColor(80, 80, 80)
 	self:DrawFilledRect()
 	surface.SetDrawColor(255, 255, 255)
 	
-	if self.animation == nil then
+	if not fatool.ui.sequence:get_animation(self.identifier) then
 		draw.DrawText("No animation selected", "HudDefault", width * 0.5, height * 0.5, nil, TEXT_ALIGN_CENTER)
 	end
 end
