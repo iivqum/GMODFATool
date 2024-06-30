@@ -190,7 +190,7 @@ function spline:remove_point(point_index)
 		return
 	end
 	table.remove(self.points,point_index)
-	self.segment()
+	self:update()
 end
 
 function spline:add_point(point)
@@ -198,13 +198,18 @@ function spline:add_point(point)
 		Purpose:
 			Add a point to the spline and recompute
 	--]]
+	assert(isvector(point))
 	local point_index = table.insert(self.points, point)
 	table.sort(self.points, 
 		function(p0, p1)
 			return p0.x < p1.x
 		end)
-	self:segment()
+	self:update()
 	return point_index
+end
+
+function spline:get_point(point_index)
+	return self.points[point_index]
 end
 
 function spline:get_segments()

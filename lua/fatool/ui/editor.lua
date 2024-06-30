@@ -120,6 +120,7 @@ function PANEL:build()
 	end	
 	
 	self:InvalidateLayout(true)
+	--self:InvalidateChildren(true)
 end
 
 function PANEL:set_animation(animation_id)
