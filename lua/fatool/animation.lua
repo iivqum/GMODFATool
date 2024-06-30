@@ -29,7 +29,25 @@ function animation:attach_sequence(sequence)
 	self.sequence = sequence
 end
 
-function animation:apply_motion()
+function animation:set(fraction)
+	--[[
+		Purpose:
+			Called when the sequence applies the animation to the actor
+	--]]
+	local actor = self.sequence:get_actor()
+	if self.sequence == nil or not IsValid(actor) then
+		-- Error!
+		return
+	end
+	for motion_id, motion in pairs(self.motions) do
+		local flex_id = actor:GetFlexIDByName(motion_id)
+		if not flex_id then
+			ErrorNoHalt("Actor doesn't support animation!")
+			return
+		end
+		local flex_weight = motion:sample_continous(fraction, 16)
+		actor:SetFlexWeight(flex_id, flex_weight)
+	end
 end
 
 function animation:setup()

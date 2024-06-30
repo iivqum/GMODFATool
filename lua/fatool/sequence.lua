@@ -44,7 +44,19 @@ function sequence:update(time_delta)
 		Purpose:
 			Update to new animation 'frame', decide which animations need to play and what part of the animation is updated
 	--]]
-	
+	assert(isnumber(time_delta))
+	for animation_id, animation in pairs(self.animations) do
+		local start = animation:get_start()
+		local stop = animation:get_stop()
+		if self.progress >= start and self.progress <= stop then
+			local delta = self.progress - start
+			local length = stop - start
+			local fraction = delta / length
+			
+			animation:set(fraction)
+		end
+	end
+	self.progress = self.progress + time_delta
 end
 
 function sequence:can_perform(entity)

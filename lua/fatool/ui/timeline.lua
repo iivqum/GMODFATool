@@ -187,6 +187,8 @@ function PANEL:Think()
 		self.bottom_scroll:Hide()
 		self:InvalidateLayout(true)
 	end
+	
+	fatool.ui.sequence:update(0)
 end
 
 function PANEL:get_boundaries()
