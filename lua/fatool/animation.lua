@@ -45,7 +45,7 @@ function animation:set(fraction)
 			ErrorNoHalt("Actor doesn't support animation!")
 			return
 		end
-		local flex_weight = motion:sample_continous(fraction, 16)
+		local flex_weight = motion:sample_continous(fraction, animation_samples)
 		actor:SetFlexWeight(flex_id, flex_weight)
 	end
 end
@@ -62,9 +62,9 @@ function animation:setup()
 	end
 	local flex_num = actor:GetFlexNum()
 	for i = 1, flex_num do
-		local flex_name = actor:GetFlexName(i)
-		if flex_name then
-			self:add_motion(flex_name)
+		local flex_id = actor:GetFlexName(i)
+		if flex_id then
+			self:add_motion(flex_id)
 		end
 	end
 end
@@ -82,7 +82,7 @@ function animation:set_start(start_time)
 end
 
 function animation:set_stop(stop_time)
-	self.stop_time = stop_time
+	self.stop_time = math.max(self.start_time, stop_time)
 end
 
 function animation:get_motions()

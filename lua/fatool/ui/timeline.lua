@@ -209,7 +209,7 @@ function PANEL:time_to_coordinate(t)
 	local start, stop = self:get_boundaries()
 	local delta = t - start
 	local fraction = math.Clamp(delta / self.timeline_span, 0, 1)
-	local x = get_within_bounds(fraction, self.timeline_left_margin, self:GetWide())
+	local x = get_within_bounds(fraction, self.timeline_left_margin, self.top_scroll:GetCanvas():GetWide() + self.timeline_left_margin)
 	return math.floor(x)
 end
 

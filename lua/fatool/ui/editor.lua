@@ -108,6 +108,8 @@ function PANEL:build()
 		category:SetTall(self:GetTall() * 0.3)
 		
 		function category.Paint(panel)
+			surface.SetDrawColor(90, 90, 90)
+			self:DrawFilledRect()	
 		end
 		
 		local spline_panel = vgui.Create("fatool_spline")
