@@ -106,20 +106,27 @@ function PANEL:build()
 	for motion_id, spline in pairs(animation:get_motions()) do
 		local category = self.list:Add(motion_id)
 		category:SetTall(self:GetTall() * 0.3)
+		category:SetExpanded(spline:get_num_points() > 0)
 		
 		function category.Paint(panel)
 			surface.SetDrawColor(90, 90, 90)
 			self:DrawFilledRect()	
 		end
 		
+		
+	
 		local spline_panel = vgui.Create("fatool_spline")
 		spline_panel:set_spline(spline)
 		
+		-- This is a hack to stop the DCategoryCollapse from trying to resize the spline panel
+		function spline_panel.SizeToChildren(panel)
+		end
+		
 		category:SetContents(spline_panel)
-		category:SetExpanded(spline:get_num_points() > 0)
+
 	end	
 	
-	self:InvalidateLayout(true)
+	--self:InvalidateLayout(true)
 	--self:InvalidateChildren(true)
 end
 

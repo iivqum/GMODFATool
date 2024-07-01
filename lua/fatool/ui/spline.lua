@@ -1,10 +1,12 @@
 local default_background_color = Color(70,70,70)
 local default_foreground_color = Color(200, 200, 200)
-local point_size = 8
+local point_size = 12
 
 local PANEL = {}
 
 function PANEL:Init()
+	self:Dock(FILL)
+
 	self.spline = fatool.spline()
 	-- A point in the spline that the user selected
 	self.selected_point = 0
@@ -16,6 +18,7 @@ end
 
 function PANEL:set_spline(spline)
 	self.spline = spline
+	self:update_points()
 end
 
 function PANEL:get_clamped_mouse_position()
@@ -83,36 +86,79 @@ function PANEL:get_spline_position(x, y)
 	return x / width, 1 - (y / height)
 end
 
-function PANEL:update_points()
+function PANEL:update_existing_points()
+	--[[
+		Purpose:
+			Update all existing points on the screen
+			The spline's points are already sorted so the screen points simply reorder themselves and the last point is always removed
+	--]]
+	local half_size = point_size * 0.5
+	for panel_id, panel in pairs(self:GetChildren()) do
+		if not self.spline:get_point(panel.point_index) then
+			panel:Remove()
+		else
+			local point_x, point_y = self:get_point_position(panel.point_index)
+			panel:SetSize(point_size, point_size)
+			panel:SetX(point_x - half_size)
+			panel:SetY(point_y - half_size)
+		end
+	end
+end
+
+function PANEL:add_point(point_index)
+	--[[
+		Purpose:
+			Add a point to the screen with the given point index
+	--]]
+	if not self.spline:get_point(point_index) then
+		return
+	end
+	
 	local width, height = self:GetSize()
 	local half_size = point_size * 0.5
-	
-	self:Clear()
 
+	local point_panel = self:Add("fatool_grabby")
+	
+	point_panel.point_index = point_index
+	
+	function point_panel.on_grabbing(panel)
+		local point = self.spline:get_point(panel.point_index)
+		local mouse_x, mouse_y = self:get_clamped_mouse_position()
+		local spline_x, spline_y = self:get_spline_position(mouse_x, mouse_y)
+		local new_point_x, new_point_y = self:get_point_position(point_index)
+		point.y = spline_y
+		self.spline:update()
+		panel:SetY(new_point_y - half_size)
+	end
+	function point_panel.on_grab(panel)
+		self.selected_point = point_index
+	end
+	function point_panel.Paint(panel, width, height)
+		if self.selected_point == point_index then
+			surface.SetDrawColor(255, 100, 100)
+		else
+			surface.SetDrawColor(default_foreground_color)
+		end
+		self:DrawFilledRect()		
+		draw.DrawText(panel.point_index, "DefaultSmall", 0, 0, Color(0, 0, 0), TEXT_ALIGN_LEFT)
+	end
+end
+
+function PANEL:update_points()
 	for point_index, point in pairs(self.spline:get_points()) do
-		local point_panel = self:Add("fatool_grabby")
-		local point_x, point_y = self:get_point_position(point_index)
-		point_panel:SetSize(point_size, point_size)
-		point_panel:SetX(point_x - half_size)
-		point_panel:SetY(point_y - half_size)
-		function point_panel.on_grabbing(panel)
-			local mouse_x, mouse_y = self:get_clamped_mouse_position()
-			local spline_x, spline_y = self:get_spline_position(mouse_x, mouse_y)
-			panel:SetY(mouse_y - half_size)
-			point.y = spline_y
-			self.spline:update()
-		end
-		function point_panel.on_grab(panel)
-			self.selected_point = point_index
-		end
-		function point_panel.Paint(panel, width, height)
-			if self.selected_point == point_index then
-				surface.SetDrawColor(255, 100, 100)
-			else
-				surface.SetDrawColor(default_foreground_color)
-			end
-			self:DrawFilledRect()		
-		end
+		self:add_point(point_index)
+	end
+end
+
+function PANEL:PerformLayout()
+	self:update_existing_points()
+end
+
+function PANEL:Think()
+	if input.IsKeyDown(KEY_DELETE) and self.selected_point then
+		self.spline:remove_point(self.selected_point)
+		self.selected_point = nil
+		self:update_existing_points()
 	end
 end
 
@@ -120,10 +166,11 @@ function PANEL:OnMousePressed(mouse_key)
 	if mouse_key == MOUSE_LEFT then
 		local normal_mouse_x, normal_mouse_y = self:normalized_mouse_pos()
 		if input.IsKeyDown(KEY_LSHIFT) then
-			self.spline:add_point(Vector(normal_mouse_x, 1 - normal_mouse_y))
+			local point_index = self.spline:add_point(Vector(normal_mouse_x, 1 - normal_mouse_y))
+			self:add_point(point_index)
 		end
 	end
-	self:update_points()
+	self:update_existing_points()
 end
 
 vgui.Register("fatool_spline", PANEL, "DPanel")
