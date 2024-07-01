@@ -90,7 +90,8 @@ function PANEL:update_existing_points()
 	--[[
 		Purpose:
 			Update all existing points on the screen
-			The spline's points are already sorted so the screen points simply reorder themselves and the last point is always removed
+			The spline's points are already sorted so the screen points simply 
+			reorder themselves and the last point is always removed
 	--]]
 	local half_size = point_size * 0.5
 	for panel_id, panel in pairs(self:GetChildren()) do
