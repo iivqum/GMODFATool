@@ -171,6 +171,7 @@ function PANEL:OnMousePressed(mouse_key)
 			self:add_point(point_index)
 		end
 	end
+	self.selected_point = nil
 	self:update_existing_points()
 end
 
