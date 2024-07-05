@@ -100,7 +100,10 @@ function PANEL:Init()
 		local menu = DermaMenu(false)
 		menu:Open()
 		menu:AddOption("Add event", function()
-			local event_creator = self:Add("fatool_event_creator")
+			if self.event_creator then
+				self.event_creator:Remove()
+			end		
+			self.event_creator = self:Add("fatool_event_creator")
 		end)
 	end	
 	

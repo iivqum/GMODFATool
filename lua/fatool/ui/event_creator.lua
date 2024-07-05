@@ -32,7 +32,9 @@ function PANEL:Init()
 	function self.entry1.OnValueChange(panel, text)
 		local start = panel:GetFloat()
 		local stop = self.entry2:GetFloat()
-		if text:len() == 0 or start >= stop then
+		if text:len() == 0 then
+			panel:SetText(0)
+		elseif start >= stop then
 			self.entry2:SetText(start + 1)
 		end
 	end	
