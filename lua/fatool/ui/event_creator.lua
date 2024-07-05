@@ -12,51 +12,62 @@ function PANEL:Init()
 
 	self.contents = self:Add("DPanel")
 	self.contents:Dock(FILL)
+	
+	self.animation_id_label = self.contents:Add("DLabel")
+	self.animation_id_label:SetText("Animation ID: ")
+	self.animation_id_label:Dock(TOP)
+	self.animation_id_label:DockMargin(32, 0, 0, 0)
+	self.animation_id_label:SetColor(Color(0, 0, 0))
+	
+	self.animation_id_entry = self.contents:Add("DTextEntry")
+	self.animation_id_entry:Dock(TOP)
+	self.animation_id_entry:DockMargin(32, 0, 32, 0)
+	self.animation_id_entry:SetValue("Default")	
 
-	self.label1 = self.contents:Add("DLabel")
-	self.label1:SetText("Start time (seconds):")
-	self.label1:Dock(TOP)
-	self.label1:DockMargin(32, 0, 0, 0)
-	self.label1:SetColor(Color(0, 0, 0))
+	self.start_time_label = self.contents:Add("DLabel")
+	self.start_time_label:SetText("Start time (seconds):")
+	self.start_time_label:Dock(TOP)
+	self.start_time_label:DockMargin(32, 0, 0, 0)
+	self.start_time_label:SetColor(Color(0, 0, 0))
 	
-	self.entry1 = self.contents:Add("DTextEntry")
-	self.entry1:Dock(TOP)
-	self.entry1:DockMargin(32, 0, 32, 0)
-	self.entry1:SetValue(0)
-	self.entry1:SetNumeric(true)
+	self.start_time_entry = self.contents:Add("DTextEntry")
+	self.start_time_entry:Dock(TOP)
+	self.start_time_entry:DockMargin(32, 0, 32, 0)
+	self.start_time_entry:SetValue(0)
+	self.start_time_entry:SetNumeric(true)
 	
-	function self.entry1.AllowInput(panel, character)
+	function self.start_time_entry.AllowInput(panel, character)
 		return not (valid_text_chars:find(character) and true or false)
 	end
 	
-	function self.entry1.OnValueChange(panel, text)
+	function self.start_time_entry.OnValueChange(panel, text)
 		local start = panel:GetFloat()
-		local stop = self.entry2:GetFloat()
+		local stop = self.stop_time_entry:GetFloat()
 		if text:len() == 0 then
 			panel:SetText(0)
 		elseif start >= stop then
-			self.entry2:SetText(start + 1)
+			self.stop_time_entry:SetText(start + 1)
 		end
 	end	
 	
-	self.label2 = self.contents:Add("DLabel")
-	self.label2:SetText("Stop time (seconds):")
-	self.label2:Dock(TOP)
-	self.label2:DockMargin(32, 0, 0, 0)
-	self.label2:SetColor(Color(0, 0, 0))
+	self.stop_time_label = self.contents:Add("DLabel")
+	self.stop_time_label:SetText("Stop time (seconds):")
+	self.stop_time_label:Dock(TOP)
+	self.stop_time_label:DockMargin(32, 0, 0, 0)
+	self.stop_time_label:SetColor(Color(0, 0, 0))
 	
-	self.entry2 = self.contents:Add("DTextEntry")
-	self.entry2:Dock(TOP)
-	self.entry2:DockMargin(32, 0, 32, 0)
-	self.entry2:SetValue(5)
-	self.entry2:SetNumeric(true)
+	self.stop_time_entry = self.contents:Add("DTextEntry")
+	self.stop_time_entry:Dock(TOP)
+	self.stop_time_entry:DockMargin(32, 0, 32, 0)
+	self.stop_time_entry:SetValue(5)
+	self.stop_time_entry:SetNumeric(true)
 	
-	function self.entry2.AllowInput(panel, character)
+	function self.stop_time_entry.AllowInput(panel, character)
 		return not (valid_text_chars:find(character) and true or false)
 	end
 	
-	function self.entry2.OnValueChange(panel, text)
-		local start = self.entry1:GetFloat()
+	function self.stop_time_entry.OnValueChange(panel, text)
+		local start = self.start_time_entry:GetFloat()
 		local stop = panel:GetFloat()
 		if text:len() == 0 or stop <= start then
 			panel:SetText(start + 1)
@@ -70,7 +81,8 @@ function PANEL:Init()
 	
 	function self.accept.DoClick(panel)
 		local timeline = fatool.ui.state:get_timeline()
-		
+		timeline:add_animation(self.animation_id_entry:GetValue(), self.start_time_entry:GetFloat(), self.stop_time_entry:GetFloat())
+		self:Close()
 	end
 end
 
