@@ -13,6 +13,7 @@ AddCSLuaFile("fatool/ui/preview.lua")
 AddCSLuaFile("fatool/ui/editor.lua")
 AddCSLuaFile("fatool/ui/menubar.lua")
 AddCSLuaFile("fatool/ui/grabbable.lua")
+AddCSLuaFile("fatool/ui/event_creator.lua")
 
 if SERVER then
 	return

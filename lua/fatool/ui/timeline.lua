@@ -1,4 +1,5 @@
 include("fatool/ui/timeline_bar.lua")
+include("fatool/ui/event_creator.lua")
 
 local timeline_font = "DefaultSmall"
 
@@ -80,29 +81,32 @@ function PANEL:Init()
 	self.top_scroll:DockMargin(self.timeline_left_margin, 0, 0, 0)
 	self.top_scroll:Dock(FILL)
 
-	function self.top_scroll:Paint(width, height)
+	function self.top_scroll.Paint(panel, width, height)
 		surface.SetDrawColor(150, 150, 150)
-		surface.DrawLine(0, 0, 0, height)		
+		surface.DrawLine(0, 0, 0, height)
 	end
 	
 	self.timeline_canvas = self.top_scroll:Add("DPanel")
 	self.timeline_canvas:Dock(TOP)
 
-	function self.timeline_canvas:Paint(width, height)
+	function self.timeline_canvas.Paint(panel)
+	
 	end
+
+	function self.timeline_canvas.OnMousePressed(panel, mouse_key)
+		if mouse_key ~= MOUSE_RIGHT then
+			return
+		end
+		local menu = DermaMenu(false)
+		menu:Open()
+		menu:AddOption("Add event", function()
+			local event_creator = self:Add("fatool_event_creator")
+		end)
+	end	
 	
 	self.bottom_scroll = self:Add("DHScrollBar")
 	self.bottom_scroll:Dock(BOTTOM)
-	--self.bottom_scroll:SetUp(1, 10)
 	self.bottom_scroll:Hide()
-end
-
-function PANEL:sort_bars()
-	table.sort(self.bars, function(bar1, bar2)
-		local start1 = bar1:get_animation():get_start()
-		local start2 = bar2:get_animation():get_start()
-		return start1 < start2
-	end)
 end
 
 function PANEL:add_animation(name, start, stop)
@@ -117,7 +121,6 @@ function PANEL:add_animation(name, start, stop)
 	local bar = self.timeline_canvas:Add("fatool_timeline_bar")
 	bar:set_animation(name)
 	table.insert(self.bars, bar)
-	self:sort_bars()
 	return animation
 end
 
@@ -139,11 +142,16 @@ function PANEL:layout_bars()
 		Purpose:
 			Ensure the bars don't overlap
 	--]]
-	self:sort_bars()
+	local bars = table.Copy(self.bars)
+	table.sort(bars, function(bar1, bar2)
+		local start1 = bar1:get_animation():get_start()
+		local start2 = bar2:get_animation():get_start()
+		return start1 < start2
+	end)
 	-- Minimum height for the panel containing the bars
 	local minimum_height = 0
 	local bar_rows = {}
-	for bar_index, bar in ipairs(self.bars) do
+	for bar_index, bar in ipairs(bars) do
 		local start = bar:get_animation():get_start()
 		local first_free_row = 0
 		for row_index, row in ipairs(bar_rows) do
@@ -168,6 +176,7 @@ function PANEL:layout_bars()
 		minimum_height = math.max(minimum_height, y + bar:GetTall())
 		bar:SetY(y)
 	end
+	minimum_height = math.max(self.top_scroll:GetTall(), minimum_height)
 	self.timeline_canvas:SetTall(minimum_height)
 end
 
@@ -266,10 +275,6 @@ end
 
 function PANEL:PaintOver()
 	self:draw_scrubber_marker()
-end
-
-function PANEL:OnMousePressed(mouse_key)
-	
 end
 
 vgui.Register("fatool_timeline", PANEL, "DPanel")
