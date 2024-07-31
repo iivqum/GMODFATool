@@ -47,6 +47,24 @@ function fatool.ui.get_font_height(font)
 	return select(2, surface.GetTextSize(""))
 end
 
+local function request_focus(panel)
+	for k, v in pairs(panel:GetChildren()) do
+		v:RequestFocus()
+	end
+	--panel:RequestFocus()
+end
+
+local function is_hovered(panel)
+	local mouse_x, mouse_y = input.GetCursorPos()
+	local width, height = panel:GetSize()
+	local x, y = panel:GetParent():LocalToScreen(panel:GetPos())
+	local dx = mouse_x - x
+	local dy = mouse_y - y
+	if dx >= 0 and dx < width and dy >= 0 and dy < height then
+		return true
+	end
+end
+
 local PANEL = {}
 
 function PANEL:Init()
@@ -54,10 +72,12 @@ function PANEL:Init()
 	self:SetSizable(false)
 	self:SetTitle("FATool") 
 	self:SetVisible(true) 
-	self:SetDraggable(true) 
-	self:ShowCloseButton(true) 
+	self:SetDraggable(true)
+	self:SetKeyboardInputEnabled(true)
+	self:ShowCloseButton(true)
 	self:MakePopup()
 	self:Center()
+	self:SetFocusTopLevel(true)
 	
 	self.menubar = self:Add("fatool_menubar")
 	self.menubar:Dock(TOP)
@@ -65,28 +85,53 @@ function PANEL:Init()
 	self.timeline = self:Add("DFrame")
 	self.timeline:SetTall(self:GetTall() * 0.3)
 	self.timeline:ShowCloseButton(false)
-	self.timeline:SetDraggable(false)
 	self.timeline:SetTitle("Timeline")
 	self.timeline:Dock(BOTTOM)
 	
-	self.timeline.panel = self.timeline:Add("fatool_timeline")
-	
-	self.preview = self:Add("DFrame")
-	self.preview:ShowCloseButton(false)
-	self.preview:SetDraggable(false)
-	self.preview:SetTitle("Animation preview")
-	self.preview:SetWide(self:GetWide() * 0.3)
-	self.preview:Dock(LEFT)
-	
-	self.preview.panel = self.preview:Add("fatool_preview")
+	self.timeline.panel = self.timeline:Add("fatool_timeline")	
 	
 	self.editor = self:Add("DFrame")
 	self.editor:ShowCloseButton(false)
-	self.editor:SetDraggable(false)
-	self.editor:SetTitle("Editor")	
-	self.editor:Dock(FILL)
+	self.editor:SetTitle("Editor")
+	self.editor:SetWide(self:GetWide() * 0.6)
+	self.editor:Dock(LEFT)
 	
 	self.editor.panel = self.editor:Add("fatool_editor")
+	
+	self.preview = self:Add("DFrame")
+	self.preview:ShowCloseButton(false)
+	self.preview:SetTitle("Animation preview")
+	self.preview:Dock(FILL)
+	
+	self.preview.panel = self.preview:Add("fatool_preview")
+	
+	self.timeline:KillFocus()
+	self.preview:KillFocus()
+	self.editor:KillFocus()
+end
+
+function PANEL:Think()
+	local mouse_left_pressed = input.IsMouseDown(MOUSE_LEFT)
+	if mouse_left_pressed then 
+		if not self.mouse_left_pressed then
+			self.mouse_left_pressed = true
+			self:mouse_pressed()
+		end
+	elseif self.mouse_left_pressed then
+		self.mouse_left_pressed = false
+	end
+end
+
+function PANEL:mouse_pressed()
+	if is_hovered(self.timeline) then
+		request_focus(self.timeline)
+	end
+	if is_hovered(self.preview) then
+		request_focus(self.preview)
+	end	
+	if is_hovered(self.editor) then
+		request_focus(self.editor)
+	end	
 end
 
 function PANEL:get_editor()

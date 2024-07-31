@@ -104,4 +104,4 @@ function PANEL:Think()
 	self:update_grab()
 end
 
-vgui.Register("fatool_grabby", PANEL, "DPanel")
+vgui.Register("fatool_grabby", PANEL, "EditablePanel")

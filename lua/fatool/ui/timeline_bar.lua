@@ -10,8 +10,8 @@ function PANEL:Init()
 	
 	self.animation_id = nil
 	
-	
 	self:SetMouseInputEnabled(true)
+	self:SetKeyboardInputEnabled(true)
 	self:SetTall(self.gap + self.base_width)
 end
 
@@ -90,6 +90,7 @@ function PANEL:on_grab()
 	self.start_timeline_position = timeline:get_timeline_position()
 	
 	fatool.ui.state:get_editor():set_animation(self.animation_id)
+	--timeline:select_animation(self.animation_id)
 end
 
 function PANEL:Think()
@@ -115,7 +116,7 @@ function PANEL:Paint(width, height)
 		fatool.ui.draw_dashed_rectangle(3, 0, 0, width, height)
 		surface.SetDrawColor(162, 234, 255, 5)
 		self:DrawFilledRect()
-	end	
+	end
 end
 
 vgui.Register("fatool_timeline_bar", PANEL, "fatool_grabby")

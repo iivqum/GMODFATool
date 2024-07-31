@@ -8,16 +8,16 @@ function PANEL:Init()
 	self:Dock(FILL)
 
 	self.spline = fatool.spline()
-	-- A point in the spline that the user selected
-	self.selected_point = 0
+	self.motion_id = ""
 end
 
 function PANEL:get_spline()
 	return self.spline
 end
 
-function PANEL:set_spline(spline)
+function PANEL:set_spline(spline, identifier)
 	self.spline = spline
+	self.motion_id = identifier
 	self:update_points()
 end
 
@@ -36,7 +36,7 @@ function PANEL:normalized_mouse_pos()
 end
 
 function PANEL:Paint(width, height)
-	surface.SetDrawColor(self:GetBackgroundColor() or default_background_color)
+	surface.SetDrawColor(default_background_color)
 	self:DrawFilledRect()
 	
 	surface.SetDrawColor(default_foreground_color)
@@ -132,16 +132,15 @@ function PANEL:add_point(point_index)
 		panel:SetY(new_point_y - half_size)
 	end
 	function point_panel.on_grab(panel)
-		self.selected_point = point_index
+		fatool.ui.state:get_editor():select_point(panel.point_index, self.motion_id)
 	end
 	function point_panel.Paint(panel, width, height)
-		if self.selected_point == point_index then
+		if fatool.ui.state:get_editor():is_point_selected(panel.point_index, self.motion_id) then
 			surface.SetDrawColor(255, 100, 100)
 		else
 			surface.SetDrawColor(default_foreground_color)
 		end
-		self:DrawFilledRect()		
-		draw.DrawText(panel.point_index, "DefaultSmall", 0, 0, Color(0, 0, 0), TEXT_ALIGN_LEFT)
+		self:DrawFilledRect()
 	end
 end
 
@@ -152,6 +151,7 @@ function PANEL:update_points()
 end
 
 function PANEL:PerformLayout()
+print("IT DID IT!")
 	self:update_existing_points()
 end
 
@@ -171,8 +171,8 @@ function PANEL:OnMousePressed(mouse_key)
 			self:add_point(point_index)
 		end
 	end
-	self.selected_point = nil
+	fatool.ui.state:get_editor():clear_selected_point()
 	self:update_existing_points()
 end
 
-vgui.Register("fatool_spline", PANEL, "DPanel")
+vgui.Register("fatool_spline", PANEL, "EditablePanel")

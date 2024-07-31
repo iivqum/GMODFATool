@@ -130,5 +130,8 @@ function sequence:add_animation(identifier, animation_type, override)
 end
 
 function sequence:remove_animation(identifier)
+	if not self.animations[identifier] then
+		return
+	end
 	self.animations[identifier] = nil
 end

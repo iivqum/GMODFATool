@@ -121,9 +121,7 @@ function PANEL:add_animation(name, start, stop)
 	end
 	animation:set_start(start)
 	animation:set_stop(stop)
-	local bar = self.timeline_canvas:Add("fatool_timeline_bar")
-	bar:set_animation(name)
-	table.insert(self.bars, bar)
+	self:update_bars()
 	return animation
 end
 
@@ -183,9 +181,7 @@ function PANEL:layout_bars()
 	self.timeline_canvas:SetTall(minimum_height)
 end
 
-function PANEL:Think()
-	self:layout_bars()
-	
+function PANEL:update_scroll()
 	local left_boundary, right_boundary = self:get_boundaries()
 	local sequence = fatool.ui.sequence
 	local stop = sequence:get_stop()
@@ -199,7 +195,51 @@ function PANEL:Think()
 		self.bottom_scroll:Hide()
 		self:InvalidateLayout(true)
 	end
+end
+
+function PANEL:update_bars()
+	--[[
+		Purpose:
+			Synchronise timeline bars with the sequence
+			Add relevant bars and remove bars that don't exist anymore
+	--]]
+	-- Lazy way
+	for bar_index, bar in pairs(self.bars) do
+		bar:Remove()
+	end
+	self.bars = {}
+	for animation_id, animation in pairs(fatool.ui.sequence:get_animations()) do
+		local bar = self.timeline_canvas:Add("fatool_timeline_bar")
+		bar:set_animation(animation_id)
+		table.insert(self.bars, bar)
+	end
+end
+
+function PANEL:select_animation(animation_id)
+	--[[
+		Purpose:
+			Select animation that will be removed when the user presses delete
+	--]]
 	
+end
+
+function PANEL:OnKeyCodePressed(key_code)
+	--[[
+		Purpose:
+			Check and respond to key presses
+	--]]
+	local editor = fatool.ui.state:get_editor()
+	local animation_id = editor:get_animation_id()
+	if key_code == KEY_DELETE and editor:get_animation() then
+		fatool.ui.sequence:remove_animation(animation_id)
+		editor:update()
+		self:update_bars()
+	end
+end
+
+function PANEL:Think()
+	self:layout_bars()
+	self:update_scroll()
 	fatool.ui.sequence:update(0)
 end
 

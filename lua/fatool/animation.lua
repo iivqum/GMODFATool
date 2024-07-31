@@ -89,6 +89,10 @@ function animation:get_motions()
 	return self.motions
 end
 
+function animation:get_motion(motion_identifier)
+	return self.motions[motion_identifier]
+end
+
 function animation:add_motion(identifier)
 	--[[
 		Purpose:

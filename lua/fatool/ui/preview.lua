@@ -40,16 +40,7 @@ function PANEL:LayoutEntity()
 	local head_position = self:GetEntity():GetBonePosition(self:GetEntity():LookupBone("ValveBiped.Bip01_Head1")) + self:GetEntity():GetPos()
 	self:SetLookAt(head_position)
 	self:SetCamPos(head_position - Vector(-15, 0, 0))
-	self:GetEntity():SetEyeTarget(self:GetCamPos())
-	
-	local timeline = fatool.ui.state:get_timeline()
-	
-	timeline:add_animation("test", 1, 2)
-	timeline:add_animation("test2", 3, 4)
-	timeline:add_animation("test3", 5, 6)
-	timeline:add_animation("test4", 7, 8)
-	timeline:add_animation("test5", 7, 8)
-	timeline:add_animation("test6", 7, 8)	
+	self:GetEntity():SetEyeTarget(self:GetCamPos())	
 end
 
 function PANEL:PreDrawModel(preview_entity)

@@ -4,10 +4,13 @@ local PANEL = {}
 
 function PANEL:Init()
 	self:Dock(FILL)
-	
-	-- String animation_id for the animation
+	-- String animation_id for the animation currently selected
 	self.animation_id = ""
-	
+	-- Information about a selected point in the current animation
+	self.selected_point = {
+		motion_id = "",
+		index = 0
+	}
 	self.top_bar = self:Add("DPanel")
 	self.top_bar:SetTall(fatool.ui.get_font_height(scrubber_font) * 1.2)
 	self.top_bar:Dock(TOP)
@@ -68,6 +71,7 @@ end
 
 function PANEL:Think()
 	if not self:get_animation() then
+		self.scrubber:Hide()
 		return
 	end
 	if not self.scrubber:IsVisible() then
@@ -94,14 +98,47 @@ function PANEL:get_animation_id()
 	return self.animation_id
 end
 
+function PANEL:select_point(point_index, motion_identifier)
+	--[[
+		Purpose:
+			Select a point within any of the animation's motion controllers
+	--]]
+	local animation = self:get_animation()
+	local motion = animation:get_motion(motion_identifier)
+	if not motion then
+		return
+	end
+	local point = motion:get_point(point_index)
+	if not point then
+		return
+	end
+	self.selected_point.motion_id = motion_identifier
+	self.selected_point.index = point_index
+end
+
+function PANEL:clear_selected_point()
+	self.selected_point.motion_id = ""
+	self.selected_point.index = 0	
+end
+
+function PANEL:is_point_selected(point_index, motion_identifier)
+	return self.selected_point.motion_id == motion_identifier and self.selected_point.index == point_index
+end
+
 function PANEL:get_animation()
 	return fatool.ui.sequence:get_animation(self.animation_id)
 end
 
-function PANEL:build()
+function PANEL:update()
 	local animation = self:get_animation()
 	
 	self.list:Clear()
+	self.motions = {}
+	
+	if animation == nil then
+		self.animation_id = ""
+		return
+	end
 	
 	for motion_id, spline in pairs(animation:get_motions()) do
 		local category = self.list:Add(motion_id)
@@ -109,15 +146,29 @@ function PANEL:build()
 		category:SetExpanded(spline:get_num_points() > 0)
 		function category.Paint(panel)
 			surface.SetDrawColor(90, 90, 90)
-			self:DrawFilledRect()	
+			self:DrawFilledRect()
 		end
 		local spline_panel = vgui.Create("fatool_spline")
-		spline_panel:set_spline(spline)	
+		spline_panel:set_spline(spline, motion_id)	
 		-- This is a hack to stop the DCategoryCollapse from trying to resize the spline panel
 		function spline_panel.SizeToChildren(panel)
 		end
 		category:SetContents(spline_panel)
+		self.motions[motion_id] = spline_panel
 	end	
+end
+
+function PANEL:OnKeyCodePressed(key_code)
+	local animation = self:get_animation()
+	if key_code == KEY_DELETE and animation then
+		local motion = animation:get_motion(self.selected_point.motion_id)
+		if not motion then
+			return
+		end
+		motion:remove_point(self.selected_point.index)
+		self.motions[self.selected_point.motion_id]:update_existing_points()
+		self.selected_point = {}
+	end
 end
 
 function PANEL:set_animation(animation_id)
@@ -126,7 +177,7 @@ function PANEL:set_animation(animation_id)
 		return
 	end
 	self.animation_id = animation_id
-	self:build()
+	self:update()
 end
 
 function PANEL:Paint(width, height)
@@ -134,17 +185,17 @@ function PANEL:Paint(width, height)
 	self:DrawFilledRect()
 	surface.SetDrawColor(255, 255, 255)
 	
-	if not fatool.ui.sequence:get_animation(self.animation_id) then
+	if not self:get_animation() then
 		draw.DrawText("No animation selected", "HudDefault", width * 0.5, height * 0.5, nil, TEXT_ALIGN_CENTER)
 		return
 	end
 end
 
 function PANEL:PaintOver(width, height)
-	if not fatool.ui.sequence:get_animation(self.animation_id) then
+	if self:get_animation() == nil then
 		return
 	end
 	fatool.ui.draw_vertical_dashed_line(3, self:time_to_coordinate(fatool.ui.sequence:get_progress()), self.top_bar:GetTall(), height)
 end
 
-vgui.Register("fatool_editor", PANEL, "DPanel")
+vgui.Register("fatool_editor", PANEL, "EditablePanel")
