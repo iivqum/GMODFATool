@@ -45,7 +45,12 @@ function animation:set(fraction)
 			ErrorNoHalt("Actor doesn't support animation!")
 			return
 		end
+		local lower_bound, upper_bound = self:get_motion_bounds(motion_id)
 		local flex_weight = motion:sample_continous(fraction, animation_samples)
+
+		flex_weight = flex_weight * math.abs(upper_bound)
+
+		print("old:",actor:GetFlexWeight(flex_id),"new:",flex_weight,"flex:",motion_id)
 		actor:SetFlexWeight(flex_id, flex_weight)
 	end
 end

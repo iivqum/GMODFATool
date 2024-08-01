@@ -33,6 +33,8 @@ function PANEL:Init()
 	self.bars = {}
 	-- Gap between bars
 	self.bar_gap = 4
+
+	self.playing = false
 	
 	self:Dock(FILL)
 	
@@ -235,12 +237,15 @@ function PANEL:OnKeyCodePressed(key_code)
 		editor:update()
 		self:update_bars()
 	end
+	if key_code == KEY_SPACE then
+		self.playing = not self.playing
+	end
 end
 
 function PANEL:Think()
 	self:layout_bars()
 	self:update_scroll()
-	fatool.ui.sequence:update(0)
+	fatool.ui.sequence:update(self.playing and FrameTime() or 0)
 end
 
 function PANEL:get_boundaries()
