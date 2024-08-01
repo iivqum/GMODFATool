@@ -50,6 +50,19 @@ function animation:set(fraction)
 	end
 end
 
+function animation:get_motion_bounds(motion_id)
+	if not self:get_motion(motion_id) then
+		return
+	end
+	local actor = self.sequence:get_actor()
+	local flex_id = actor:GetFlexIDByName(motion_id)
+	if not flex_id then
+		-- ERROR!
+		return 0, 0
+	end
+	return actor:GetFlexBounds(flex_id)
+end
+
 function animation:setup()
 	--[[
 		Purpose:

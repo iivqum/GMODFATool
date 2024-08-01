@@ -9,15 +9,24 @@ function PANEL:Init()
 
 	self.spline = fatool.spline()
 	self.motion_id = ""
+	-- If the middle of the spline window should correspond to the x axis
+	self.zero_center = false
 end
 
 function PANEL:get_spline()
 	return self.spline
 end
 
-function PANEL:set_spline(spline, identifier)
+function PANEL:set_spline(spline, motion_id)
 	self.spline = spline
-	self.motion_id = identifier
+	self.motion_id = motion_id
+	
+	local min_bound = fatool.ui.state:get_editor():get_animation():get_motion_bounds(motion_id)
+	
+	if min_bound < 0 then
+		self.zero_center = true
+	end
+	
 	self:update_points()
 end
 
@@ -45,10 +54,8 @@ function PANEL:Paint(width, height)
 	for segment_index, segment in ipairs(self.spline:get_segments()) do
 		self.spline:sample_along(segment_index, 10, function(old_point, new_point)
 			-- Flip Y axis because screen Y is flipped
-			local start_x = old_point.x * width
-			local start_y = (1 - old_point.y) * height
-			local end_x = new_point.x * width
-			local end_y = (1 - new_point.y) * height
+			local start_x, start_y = self:spline_to_screen(old_point.x, old_point.y)
+			local end_x, end_y = self:spline_to_screen(new_point.x, new_point.y)
 			surface.DrawLine(start_x, start_y, end_x, end_y)
 		end)
 	end
@@ -58,32 +65,54 @@ function PANEL:Paint(width, height)
 	end
 	
 	local normal_mouse_x, normal_mouse_y = self:normalized_mouse_pos()
-	local y = 1 - self.spline:sample_continous(normal_mouse_x, 16)
+	local y = self.spline:sample_continous(normal_mouse_x, 16)
+	local screen_x, screen_y = self:spline_to_screen(0, y)
 	
 	fatool.ui.draw_vertical_dashed_line(3, normal_mouse_x * width, 0, height)
 	fatool.ui.draw_horizontal_dashed_line(3, normal_mouse_y * height, 0, width)
-	fatool.ui.draw_horizontal_dashed_line(3, y * height, 0, width)
+	fatool.ui.draw_horizontal_dashed_line(3, screen_y, 0, width)
 end
 
-function PANEL:get_point_position(point_index)
+function PANEL:spline_to_screen(spline_x, spline_y)
 	--[[
 		Purpose:
-			Get the position of a spline point from a screen point
+			Convert spline coordinate to screen coordinate
 	--]]
-	local point = self.spline:get_point(point_index)
 	local width, height = self:GetSize()
-	local point_x = point.x * width
-	local point_y = (1 - point.y) * height
+	local point_x = spline_x * width
+	local point_y
+	if self.zero_center then
+		local half_height = height * 0.5
+		point_y = (spline_y * -1) * half_height + half_height
+	else
+		point_y = (1 - spline_y) * height
+	end
 	return point_x, point_y
 end
 
-function PANEL:get_spline_position(x, y)
+function PANEL:screen_to_spline(screen_x, screen_y)
+	--[[
+		Purpose:
+			Convert screen coordinate to spline coordinate
+	--]]
+	local width, height = self:GetSize()
+	local spline_y
+	if self.zero_center then
+		local half_height = height * 0.5
+		spline_y = (screen_y - half_height) / half_height * -1
+	else
+		spline_y = 1 - (screen_y / height)
+	end
+	return screen_x / width, spline_y
+end
+
+function PANEL:get_spline_screen_position(point_index)
 	--[[
 		Purpose:
 			Get the position of a screen point from a spline point
 	--]]
-	local width, height = self:GetSize()
-	return x / width, 1 - (y / height)
+	local point = self.spline:get_point(point_index)
+	return self:spline_to_screen(point.x, point.y)
 end
 
 function PANEL:update_existing_points()
@@ -98,7 +127,7 @@ function PANEL:update_existing_points()
 		if not self.spline:get_point(panel.point_index) then
 			panel:Remove()
 		else
-			local point_x, point_y = self:get_point_position(panel.point_index)
+			local point_x, point_y = self:get_spline_screen_position(panel.point_index)
 			panel:SetSize(point_size, point_size)
 			panel:SetX(point_x - half_size)
 			panel:SetY(point_y - half_size)
@@ -125,8 +154,8 @@ function PANEL:add_point(point_index)
 	function point_panel.on_grabbing(panel)
 		local point = self.spline:get_point(panel.point_index)
 		local mouse_x, mouse_y = self:get_clamped_mouse_position()
-		local spline_x, spline_y = self:get_spline_position(mouse_x, mouse_y)
-		local new_point_x, new_point_y = self:get_point_position(point_index)
+		local spline_x, spline_y = self:screen_to_spline(mouse_x, mouse_y)
+		local new_point_x, new_point_y = self:get_spline_screen_position(point_index)
 		point.y = spline_y
 		self.spline:update()
 		panel:SetY(new_point_y - half_size)
@@ -151,7 +180,6 @@ function PANEL:update_points()
 end
 
 function PANEL:PerformLayout()
-print("IT DID IT!")
 	self:update_existing_points()
 end
 
@@ -165,9 +193,9 @@ end
 
 function PANEL:OnMousePressed(mouse_key)
 	if mouse_key == MOUSE_LEFT then
-		local normal_mouse_x, normal_mouse_y = self:normalized_mouse_pos()
+		local mouse_x, mouse_y = self:ScreenToLocal(gui.MouseX(), gui.MouseY())
 		if input.IsKeyDown(KEY_LSHIFT) then
-			local point_index = self.spline:add_point(Vector(normal_mouse_x, 1 - normal_mouse_y))
+			local point_index = self.spline:add_point(Vector(self:screen_to_spline(mouse_x, mouse_y)))
 			self:add_point(point_index)
 		end
 	end

@@ -166,7 +166,7 @@ function PANEL:OnKeyCodePressed(key_code)
 			return
 		end
 		motion:remove_point(self.selected_point.index)
-		self.motions[self.selected_point.motion_id]:update_existing_points()
+		self.motions[self.selected_point.motion_id]:InvalidateLayout(true)
 		self.selected_point = {}
 	end
 end
@@ -195,6 +195,7 @@ function PANEL:PaintOver(width, height)
 	if self:get_animation() == nil then
 		return
 	end
+	surface.SetDrawColor(0, 0, 0)
 	fatool.ui.draw_vertical_dashed_line(3, self:time_to_coordinate(fatool.ui.sequence:get_progress()), self.top_bar:GetTall(), height)
 end
 
