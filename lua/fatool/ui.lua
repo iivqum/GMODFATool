@@ -1,3 +1,4 @@
+include("fatool/ui/messages.lua")
 include("fatool/ui/spline.lua")
 include("fatool/ui/grabbable.lua")
 include("fatool/ui/timeline.lua")
@@ -82,13 +83,17 @@ function PANEL:Init()
 	self.menubar = self:Add("fatool_menubar")
 	self.menubar:Dock(TOP)
 	
+	self.messages = self:Add("fatool_messages")
+	self.messages:SetTall(self:GetTall() * 0.1)
+	self.messages:Dock(BOTTOM)	
+	
 	self.timeline = self:Add("DFrame")
-	self.timeline:SetTall(self:GetTall() * 0.3)
+	self.timeline:SetTall(self:GetTall() * 0.2)
 	self.timeline:ShowCloseButton(false)
 	self.timeline:SetTitle("Timeline")
 	self.timeline:Dock(BOTTOM)
 	
-	self.timeline.panel = self.timeline:Add("fatool_timeline")	
+	self.timeline.panel = self.timeline:Add("fatool_timeline")
 	
 	self.editor = self:Add("DFrame")
 	self.editor:ShowCloseButton(false)
@@ -108,6 +113,8 @@ function PANEL:Init()
 	self.timeline:KillFocus()
 	self.preview:KillFocus()
 	self.editor:KillFocus()
+	
+	fatool.ui.sequence:set_actor(self.preview.panel:GetEntity())
 end
 
 function PANEL:Think()
@@ -146,11 +153,23 @@ function PANEL:get_preview()
 	return self.preview.panel
 end
 
+function PANEL:get_messages()
+	return self.messages
+end
+
 vgui.Register("fatool_ui", PANEL, "DFrame")
 
 function fatool.ui.open()
 	fatool.ui.sequence = fatool.sequence()
 	fatool.ui.state = vgui.Create("fatool_ui")
+end
+
+function fatool.ui.message(text)
+	if not fatool.ui.state then
+		return
+	end
+	local messages = fatool.ui.state:get_messages()
+	messages:write(text)
 end
 
 concommand.Add("fatool",fatool.ui.open)

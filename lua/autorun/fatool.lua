@@ -14,6 +14,7 @@ AddCSLuaFile("fatool/ui/editor.lua")
 AddCSLuaFile("fatool/ui/menubar.lua")
 AddCSLuaFile("fatool/ui/grabbable.lua")
 AddCSLuaFile("fatool/ui/event_creator.lua")
+AddCSLuaFile("fatool/ui/messages.lua")
 
 if SERVER then
 	return
@@ -22,3 +23,4 @@ end
 include("fatool/spline.lua")
 include("fatool/sequence.lua")
 include("fatool/ui.lua")
+

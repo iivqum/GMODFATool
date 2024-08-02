@@ -32,12 +32,17 @@ function PANEL:Init()
 		local delta = look_at * scroll_delta
 		self:GetEntity():SetPos(pos + delta)
 	end
-	
-	fatool.ui.sequence:set_actor(self:GetEntity())
 end
 
 function PANEL:LayoutEntity()
-	local head_position = self:GetEntity():GetBonePosition(self:GetEntity():LookupBone("ValveBiped.Bip01_Head1")) + self:GetEntity():GetPos()
+	local head_bone = self:GetEntity():LookupBone("ValveBiped.Bip01_Head1")
+	local head_bone_position
+	if not head_bone then
+		head_bone_position = self:GetEntity():GetPos()
+	else
+		head_bone_position = self:GetEntity():GetBonePosition(head_bone)
+	end
+	local head_position = head_bone_position + self:GetEntity():GetPos()
 	self:SetLookAt(head_position)
 	self:SetCamPos(head_position - Vector(-15, 0, 0))
 	self:GetEntity():SetEyeTarget(self:GetCamPos())	

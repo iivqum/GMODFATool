@@ -34,25 +34,36 @@ function animation:set(fraction)
 		Purpose:
 			Called when the sequence applies the animation to the actor
 	--]]
-	local actor = self.sequence:get_actor()
-	if self.sequence == nil or not IsValid(actor) then
+	if self.sequence == nil or not IsValid(self.sequence:get_actor()) then
 		-- Error!
 		return
 	end
+	local actor = self.sequence:get_actor()
 	for motion_id, motion in pairs(self.motions) do
 		local flex_id = actor:GetFlexIDByName(motion_id)
 		if not flex_id then
-			ErrorNoHalt("Actor doesn't support animation!")
 			return
 		end
 		local lower_bound, upper_bound = self:get_motion_bounds(motion_id)
 		local flex_weight = motion:sample_continous(fraction, animation_samples)
-
-		flex_weight = flex_weight * math.abs(upper_bound)
-
-		print("old:",actor:GetFlexWeight(flex_id),"new:",flex_weight,"flex:",motion_id)
+		if flex_weight < 0 then
+			flex_weight = flex_weight * math.abs(lower_bound)
+		elseif flex_weight > 0 then
+			flex_weight = flex_weight * math.abs(upper_bound)
+		end
 		actor:SetFlexWeight(flex_id, flex_weight)
 	end
+end
+
+function animation:has_unsupported_flexes()
+	local actor = self.sequence:get_actor()
+	for motion_id, motion in pairs(self.motions) do
+		local flex_id = actor:GetFlexIDByName(motion_id)
+		if not flex_id then
+			return true
+		end
+	end
+	return false
 end
 
 function animation:get_motion_bounds(motion_id)

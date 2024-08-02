@@ -90,7 +90,7 @@ function PANEL:Init()
 	
 	self.timeline_canvas = self.top_scroll:Add("DPanel")
 	self.timeline_canvas:Dock(TOP)
-
+	
 	function self.timeline_canvas.Paint(panel)
 	
 	end
@@ -183,6 +183,10 @@ function PANEL:layout_bars()
 	self.timeline_canvas:SetTall(minimum_height)
 end
 
+function PANEL:toggle_play()
+	self.playing = not self.playing
+end
+
 function PANEL:update_scroll()
 	local left_boundary, right_boundary = self:get_boundaries()
 	local sequence = fatool.ui.sequence
@@ -238,7 +242,7 @@ function PANEL:OnKeyCodePressed(key_code)
 		self:update_bars()
 	end
 	if key_code == KEY_SPACE then
-		self.playing = not self.playing
+		self:toggle_play()
 	end
 end
 

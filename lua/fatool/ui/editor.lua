@@ -169,6 +169,9 @@ function PANEL:OnKeyCodePressed(key_code)
 		self.motions[self.selected_point.motion_id]:InvalidateLayout(true)
 		self.selected_point = {}
 	end
+	if key_code == KEY_SPACE then
+		fatool.ui.state:get_timeline():toggle_play()
+	end
 end
 
 function PANEL:set_animation(animation_id)

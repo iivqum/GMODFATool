@@ -39,6 +39,15 @@ function sequence:get_animation(identifier)
 	return self.animations[identifier]
 end
 
+function sequence:is_supported()
+	for animation_id, animation in pairs(self.animations) do
+		if animation:has_unsupported_flexes() then
+			return false
+		end
+	end
+	return true
+end
+
 function sequence:update(time_delta)
 	--[[
 		Purpose:
@@ -52,7 +61,6 @@ function sequence:update(time_delta)
 			local delta = self.progress - start
 			local length = stop - start
 			local fraction = delta / length
-			
 			animation:set(fraction)
 		end
 	end
