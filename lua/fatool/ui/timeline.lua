@@ -116,6 +116,7 @@ end
 
 function PANEL:PerformLayout()
 	self:update_bars()
+	fatool.ui.state:get_editor():update()
 end
 
 function PANEL:get_timeline_position()

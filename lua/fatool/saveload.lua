@@ -23,8 +23,8 @@ function fatool.save(sequence, sequence_identifier, model_name)
 	file.Write(fatool.directory .. sequence_identifier .. ".json", json_string)
 end
 
-function fatool.load(sequence_identifier)
-	local json_string = file.Read(fatool.directory .. sequence_identifier .. ".json")
+function fatool.load(filename)
+	local json_string = file.Read(fatool.directory .. filename)
 	if not json_string then
 		return
 	end

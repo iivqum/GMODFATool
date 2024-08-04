@@ -7,7 +7,27 @@ function PANEL:Init()
 	self.file:AddOption("New")
 	
 	self.file:AddOption("Load", function()
-		fatool.ui.load_sequence("test")
+		local body = fatool.ui.state:Add("DFrame")
+		body:SetSize(ScrW() * 0.25, ScrH() * 0.25)
+		body:SetSizable(false)
+		body:SetTitle("Load animation") 
+		body:SetVisible(true) 
+		body:SetDraggable(true) 
+		body:ShowCloseButton(true) 
+		body:Center()
+		
+		local browser = vgui.Create("DFileBrowser", body)
+		browser:SetOpen(true)
+		browser:SetFileTypes("*.json")
+		browser:Dock(FILL)
+		browser:SetPath("DATA")
+		browser:SetBaseFolder("fatool")
+		browser:SetCurrentFolder("fatool")
+		
+		function browser:OnDoubleClick(path, selected)
+			fatool.ui.load_sequence(path:GetFileFromFilename())
+			body:Close()
+		end		
 	end)
 	
 	self.file:AddOption("Save", function()

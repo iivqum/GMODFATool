@@ -164,10 +164,6 @@ function PANEL:update()
 	end	
 end
 
-function PANEL:PerformLayout()
-	self:update()
-end
-
 function PANEL:OnKeyCodePressed(key_code)
 	local animation = self:get_animation()
 	if key_code == KEY_DELETE and animation then
