@@ -175,7 +175,7 @@ function fatool.ui.load_sequence(sequence_identifier)
 	end
 	sequence:set_actor(fatool.ui.state:get_preview():GetEntity())
 	fatool.ui.sequence = sequence
-	fatool.ui.state:InvalidateLayout(true)
+	fatool.ui.state:InvalidateChildren(true)
 end
 
 function fatool.ui.message(text)

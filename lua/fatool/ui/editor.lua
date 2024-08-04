@@ -139,6 +139,7 @@ function PANEL:update()
 	
 	self.list:Clear()
 	self.selected_point = {}
+	self.motions = {}
 	
 	if animation == nil then
 		self.animation_id = ""
@@ -159,6 +160,7 @@ function PANEL:update()
 		function spline_panel.SizeToChildren(panel)
 		end
 		category:SetContents(spline_panel)
+		self.motions[motion_id] = spline_panel
 	end	
 end
 
@@ -174,7 +176,7 @@ function PANEL:OnKeyCodePressed(key_code)
 			return
 		end
 		motion:remove_point(self.selected_point.index)
-		self:InvalidateLayout()
+		self.motions[self.selected_point.motion_id]:InvalidateLayout()
 		self.selected_point = {}
 	end
 	if key_code == KEY_SPACE then
