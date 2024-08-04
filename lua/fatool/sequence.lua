@@ -115,10 +115,6 @@ function sequence:add_animation(identifier, animation_type, override)
 		Purpose:
 			
 	--]]
-	if not IsValid(self.actor) then
-		-- Error!
-		return
-	end
 	assert(isstring(identifier))
 	if self.animations[identifier] and not override then
 		return
@@ -133,7 +129,7 @@ function sequence:add_animation(identifier, animation_type, override)
 	end
 	self.animations[identifier] = animation
 	animation:attach_sequence(self)
-	animation:setup()
+	--animation:setup()
 	return animation
 end
 

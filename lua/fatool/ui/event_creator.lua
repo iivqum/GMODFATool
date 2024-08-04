@@ -80,9 +80,16 @@ function PANEL:Init()
 	self.accept:SetText("OK")
 	
 	function self.accept.DoClick(panel)
-		local timeline = fatool.ui.state:get_timeline()
-		timeline:add_animation(self.animation_id_entry:GetValue(), self.start_time_entry:GetFloat(), self.stop_time_entry:GetFloat())
+		local animation = fatool.ui.sequence:add_animation(self.animation_id_entry:GetValue())
+		if not animation then
+			fatool.ui.message("Failed to create animation...")
+		else
+			animation:set_start(self.start_time_entry:GetFloat())
+			animation:set_stop(self.stop_time_entry:GetFloat())
+			animation:setup()
+		end
 		self:Close()
+		fatool.ui.state:InvalidateChildren(true)
 	end
 end
 

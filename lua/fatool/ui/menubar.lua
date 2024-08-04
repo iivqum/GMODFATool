@@ -5,19 +5,25 @@ function PANEL:Init()
 	self.file = self:AddMenu("File")
 	
 	self.file:AddOption("New")
-	self.file:AddOption("Load")
+	
+	self.file:AddOption("Load", function()
+		fatool.ui.load_sequence("test")
+	end)
+	
+	self.file:AddOption("Save", function()
+		fatool.save(fatool.ui.sequence, "test")
+	end)
 	
 	self.edit = self:AddMenu("Edit")
 	
 	self.edit:AddOption("Change model", function()
-		local body = vgui.Create("DFrame")
+		local body = fatool.ui.state:Add("DFrame")
 		body:SetSize(ScrW() * 0.45, ScrH() * 0.45)
 		body:SetSizable(false)
 		body:SetTitle("Save animation") 
 		body:SetVisible(true) 
 		body:SetDraggable(true) 
 		body:ShowCloseButton(true) 
-		body:MakePopup()
 		body:Center()
 		
 		local browser = vgui.Create("DFileBrowser", body)
@@ -30,8 +36,10 @@ function PANEL:Init()
 		
 		function browser:OnDoubleClick(path, selected)
 			fatool.ui.state:get_preview():GetEntity():SetModel(path)
-			if not fatool.ui.sequence:is_supported() then
-				fatool.ui.message("Model " .. path .. " has unsupported animations!")
+			for animation_id, animation in pairs(fatool.ui.sequence:get_animations()) do
+				if animation:has_unsupported_flexes() then
+					fatool.ui.message("Warning! Animation \"" .. animation_id .. "\" has unsupported flexes!")
+				end
 			end
 			body:Close()
 		end

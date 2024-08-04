@@ -84,11 +84,11 @@ function PANEL:Init()
 	self.menubar:Dock(TOP)
 	
 	self.messages = self:Add("fatool_messages")
-	self.messages:SetTall(self:GetTall() * 0.1)
+	self.messages:SetTall(self:GetTall() * 0.05)
 	self.messages:Dock(BOTTOM)	
 	
 	self.timeline = self:Add("DFrame")
-	self.timeline:SetTall(self:GetTall() * 0.2)
+	self.timeline:SetTall(self:GetTall() * 0.25)
 	self.timeline:ShowCloseButton(false)
 	self.timeline:SetTitle("Timeline")
 	self.timeline:Dock(BOTTOM)
@@ -164,8 +164,22 @@ function fatool.ui.open()
 	fatool.ui.state = vgui.Create("fatool_ui")
 end
 
+function fatool.ui.load_sequence(sequence_identifier)
+	if not IsValid(fatool.ui.state) then
+		return
+	end
+	local sequence = fatool.load(sequence_identifier)
+	if not sequence then
+		fatool.ui.message("Couldn't load sequence!")
+		return
+	end
+	sequence:set_actor(fatool.ui.state:get_preview():GetEntity())
+	fatool.ui.sequence = sequence
+	fatool.ui.state:InvalidateLayout(true)
+end
+
 function fatool.ui.message(text)
-	if not fatool.ui.state then
+	if not IsValid(fatool.ui.state) then
 		return
 	end
 	local messages = fatool.ui.state:get_messages()

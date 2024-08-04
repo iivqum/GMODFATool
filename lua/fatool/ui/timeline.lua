@@ -105,7 +105,7 @@ function PANEL:Init()
 			if self.event_creator then
 				self.event_creator:Remove()
 			end		
-			self.event_creator = self:Add("fatool_event_creator")
+			self.event_creator = fatool.ui.state:Add("fatool_event_creator")
 		end)
 	end	
 	
@@ -114,17 +114,8 @@ function PANEL:Init()
 	self.bottom_scroll:Hide()
 end
 
-function PANEL:add_animation(name, start, stop)
-	local sequence = fatool.ui.sequence
-	local animation = sequence:add_animation(name, "flex")
-	if not animation then
-		-- Error!
-		return
-	end
-	animation:set_start(start)
-	animation:set_stop(stop)
+function PANEL:PerformLayout()
 	self:update_bars()
-	return animation
 end
 
 function PANEL:get_timeline_position()

@@ -2,6 +2,7 @@
 fatool = {}
 
 AddCSLuaFile("fatool/spline.lua")
+AddCSLuaFile("fatool/saveload.lua")
 AddCSLuaFile("fatool/animation.lua")
 AddCSLuaFile("fatool/sequence.lua")
 
@@ -22,5 +23,6 @@ end
 
 include("fatool/spline.lua")
 include("fatool/sequence.lua")
+include("fatool/saveload.lua")
 include("fatool/ui.lua")
 

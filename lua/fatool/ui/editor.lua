@@ -18,7 +18,12 @@ function PANEL:Init()
 	function self.top_bar.Paint(panel)
 	end
 	
-	self.list = self:Add("DCategoryList")
+	-- This is needed because the DCategoryList invalides the parent, otherwise an infinite loop occurs
+	self.list_panel = self:Add("EditablePanel")
+	self.list_panel:Dock(FILL)
+	self.list_panel:SetPaintBackgroundEnabled(false)
+	
+	self.list = self.list_panel:Add("DCategoryList")
 	self.list:Dock(FILL)
 	
 	function self.list.Paint(panel)
@@ -133,7 +138,7 @@ function PANEL:update()
 	local animation = self:get_animation()
 	
 	self.list:Clear()
-	self.motions = {}
+	self.selected_point = {}
 	
 	if animation == nil then
 		self.animation_id = ""
@@ -154,8 +159,11 @@ function PANEL:update()
 		function spline_panel.SizeToChildren(panel)
 		end
 		category:SetContents(spline_panel)
-		self.motions[motion_id] = spline_panel
 	end	
+end
+
+function PANEL:PerformLayout()
+	self:update()
 end
 
 function PANEL:OnKeyCodePressed(key_code)
@@ -166,7 +174,7 @@ function PANEL:OnKeyCodePressed(key_code)
 			return
 		end
 		motion:remove_point(self.selected_point.index)
-		self.motions[self.selected_point.motion_id]:InvalidateLayout(true)
+		self:InvalidateLayout()
 		self.selected_point = {}
 	end
 	if key_code == KEY_SPACE then

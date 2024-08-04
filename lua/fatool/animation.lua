@@ -41,17 +41,16 @@ function animation:set(fraction)
 	local actor = self.sequence:get_actor()
 	for motion_id, motion in pairs(self.motions) do
 		local flex_id = actor:GetFlexIDByName(motion_id)
-		if not flex_id then
-			return
+		if flex_id then
+			local lower_bound, upper_bound = self:get_motion_bounds(motion_id)
+			local flex_weight = motion:sample_continous(fraction, animation_samples)
+			if flex_weight < 0 then
+				flex_weight = flex_weight * math.abs(lower_bound)
+			elseif flex_weight > 0 then
+				flex_weight = flex_weight * math.abs(upper_bound)
+			end
+			actor:SetFlexWeight(flex_id, flex_weight)
 		end
-		local lower_bound, upper_bound = self:get_motion_bounds(motion_id)
-		local flex_weight = motion:sample_continous(fraction, animation_samples)
-		if flex_weight < 0 then
-			flex_weight = flex_weight * math.abs(lower_bound)
-		elseif flex_weight > 0 then
-			flex_weight = flex_weight * math.abs(upper_bound)
-		end
-		actor:SetFlexWeight(flex_id, flex_weight)
 	end
 end
 
