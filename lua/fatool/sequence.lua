@@ -48,6 +48,14 @@ function sequence:is_supported()
 	return true
 end
 
+function sequence:is_flex_supported(flex_id)
+	if not IsValid(self.actor) then
+		return false
+	end
+	local flex_id = self.actor:GetFlexIDByName(flex_id)
+	return flex_id ~= nil
+end
+
 function sequence:update(time_delta)
 	--[[
 		Purpose:

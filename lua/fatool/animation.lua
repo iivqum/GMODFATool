@@ -57,8 +57,7 @@ end
 function animation:has_unsupported_flexes()
 	local actor = self.sequence:get_actor()
 	for motion_id, motion in pairs(self.motions) do
-		local flex_id = actor:GetFlexIDByName(motion_id)
-		if not flex_id then
+		if not self.sequence:is_flex_supported(motion_id) then
 			return true
 		end
 	end

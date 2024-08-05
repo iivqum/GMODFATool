@@ -142,7 +142,11 @@ function PANEL:update()
 	end
 	
 	for motion_id, spline in pairs(animation:get_motions()) do
-		local category = self.list:Add(motion_id)
+		local heading = motion_id
+		if not fatool.ui.sequence:is_flex_supported(motion_id) then
+			heading = heading .. " (UNSUPPORTED)"
+		end
+		local category = self.list:Add(heading)
 		category:SetTall(self:GetTall() * 0.3)
 		category:SetExpanded(spline:get_num_points() > 0)
 		function category.Paint(panel)
@@ -177,7 +181,6 @@ end
 
 function PANEL:set_animation(animation_id)
 	if self.animation_id == animation_id or not fatool.ui.sequence:get_animation(animation_id) then
-		fatool.ui.message("Editor couldn't load the animation...")
 		return
 	end
 	self.animation_id = animation_id

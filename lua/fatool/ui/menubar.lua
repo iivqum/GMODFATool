@@ -31,7 +31,7 @@ function PANEL:Init()
 	end)
 	
 	self.file:AddOption("Save", function()
-		fatool.save(fatool.ui.sequence, "test")
+		fatool.save(fatool.ui.sequence, "test", fatool.ui.state:get_preview():get_model())
 	end)
 	
 	self.edit = self:AddMenu("Edit")
@@ -40,7 +40,7 @@ function PANEL:Init()
 		local body = fatool.ui.state:Add("DFrame")
 		body:SetSize(ScrW() * 0.45, ScrH() * 0.45)
 		body:SetSizable(false)
-		body:SetTitle("Save animation") 
+		body:SetTitle("Change model") 
 		body:SetVisible(true) 
 		body:SetDraggable(true) 
 		body:ShowCloseButton(true) 
@@ -54,13 +54,8 @@ function PANEL:Init()
 		browser:SetPath("GAME")
 		browser:SetBaseFolder("models")
 		
-		function browser:OnDoubleClick(path, selected)
-			fatool.ui.state:get_preview():GetEntity():SetModel(path)
-			for animation_id, animation in pairs(fatool.ui.sequence:get_animations()) do
-				if animation:has_unsupported_flexes() then
-					fatool.ui.message("Warning! Animation \"" .. animation_id .. "\" has unsupported flexes!")
-				end
-			end
+		function browser:OnDoubleClick(model_path, selected)
+			fatool.ui.state:get_preview():set_model(model_path)
 			body:Close()
 		end
 	end)

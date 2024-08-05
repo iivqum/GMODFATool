@@ -168,13 +168,14 @@ function fatool.ui.load_sequence(sequence_identifier)
 	if not IsValid(fatool.ui.state) then
 		return false
 	end
-	local sequence = fatool.load(sequence_identifier)
-	if not sequence then
+	local data = fatool.load(sequence_identifier)
+	if not data then
 		fatool.ui.message("Couldn't load sequence!")
 		return false
 	end
-	sequence:set_actor(fatool.ui.state:get_preview():GetEntity())
-	fatool.ui.sequence = sequence
+	data.sequence:set_actor(fatool.ui.state:get_preview():GetEntity())
+	fatool.ui.state:get_preview():set_model(data.load_model)
+	fatool.ui.sequence = data.sequence
 	fatool.ui.state:InvalidateChildren(true)
 	return true
 end

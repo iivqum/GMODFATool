@@ -55,4 +55,18 @@ function PANEL:PreDrawModel(preview_entity)
 	cam.End2D()	
 end
 
+function PANEL:set_model(model_path)
+	self:GetEntity():SetModel(model_path)
+	for animation_id, animation in pairs(fatool.ui.sequence:get_animations()) do
+		if animation:has_unsupported_flexes() then
+			fatool.ui.message("Warning! Animation \"" .. animation_id .. "\" has unsupported flexes!")
+		end
+	end
+	fatool.ui.state:InvalidateChildren(true)
+end
+
+function PANEL:get_model()
+	return self:GetEntity():GetModel()
+end
+
 vgui.Register("fatool_preview", PANEL, "DModelPanel")

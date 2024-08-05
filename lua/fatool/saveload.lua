@@ -44,5 +44,8 @@ function fatool.load(filename)
 			end
 		end
 	end
-	return sequence
+	return {
+		sequence = sequence,
+		load_model = json_table.model
+	}
 end
