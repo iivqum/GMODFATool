@@ -83,10 +83,6 @@ function PANEL:Init()
 	self.menubar = self:Add("fatool_menubar")
 	self.menubar:Dock(TOP)
 	
-	self.messages = self:Add("fatool_messages")
-	self.messages:SetTall(self:GetTall() * 0.05)
-	self.messages:Dock(BOTTOM)	
-	
 	self.timeline = self:Add("DFrame")
 	self.timeline:SetTall(self:GetTall() * 0.25)
 	self.timeline:ShowCloseButton(false)
@@ -102,6 +98,10 @@ function PANEL:Init()
 	self.editor:Dock(LEFT)
 	
 	self.editor.panel = self.editor:Add("fatool_editor")
+	
+	self.messages = self:Add("fatool_messages")
+	self.messages:SetTall(self:GetTall() * 0.1)
+	self.messages:Dock(BOTTOM)	
 	
 	self.preview = self:Add("DFrame")
 	self.preview:ShowCloseButton(false)

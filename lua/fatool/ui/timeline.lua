@@ -52,7 +52,6 @@ function PANEL:Init()
 	
 	self.scrubber:SetTall(fatool.ui.get_font_height(timeline_font))
 	self.scrubber:SetWide(self.timeline_left_margin * 2)
-	self.scrubber.playing = false
 	
 	function self.scrubber.on_grabbing(panel)
 		fatool.ui.sequence:set_progress(self:get_timeline_position())

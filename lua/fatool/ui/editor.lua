@@ -18,12 +18,7 @@ function PANEL:Init()
 	function self.top_bar.Paint(panel)
 	end
 	
-	-- This is needed because the DCategoryList invalides the parent, otherwise an infinite loop occurs
-	self.list_panel = self:Add("EditablePanel")
-	self.list_panel:Dock(FILL)
-	self.list_panel:SetPaintBackgroundEnabled(false)
-	
-	self.list = self.list_panel:Add("DCategoryList")
+	self.list = self:Add("DCategoryList")
 	self.list:Dock(FILL)
 	
 	function self.list.Paint(panel)
@@ -182,7 +177,7 @@ end
 
 function PANEL:set_animation(animation_id)
 	if self.animation_id == animation_id or not fatool.ui.sequence:get_animation(animation_id) then
-		-- Error!
+		fatool.ui.message("Editor couldn't load the animation...")
 		return
 	end
 	self.animation_id = animation_id

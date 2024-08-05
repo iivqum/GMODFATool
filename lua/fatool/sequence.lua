@@ -27,7 +27,7 @@ end
 
 function sequence:set_progress(progress)
 	assert(isnumber(progress))
-	self.progress = progress
+	self.progress = math.max(0, progress)
 end
 
 function sequence:get_animations()
