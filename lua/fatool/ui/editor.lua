@@ -152,6 +152,10 @@ function PANEL:update()
 		function category.Paint(panel)
 			surface.SetDrawColor(90, 90, 90)
 			self:DrawFilledRect()
+			if spline:get_num_points() > 0 then
+				surface.SetDrawColor(255, 0, 0)
+				surface.DrawRect(panel:GetWide() - 4, 0, 4, panel:GetTall())
+			end
 		end
 		local spline_panel = vgui.Create("fatool_spline")
 		spline_panel:set_spline(spline, motion_id)	
